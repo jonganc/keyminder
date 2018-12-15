@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "allowJs": true,
-    "skipLibCheck": false,
+    "allowJs": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -12,9 +11,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "experimentalDecorators": true
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
