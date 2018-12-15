@@ -5,61 +5,19 @@
   "license": "AGPL-3.0-only",
   "main": "index.js",
   "dependencies": {
-    "@babel/core": "7.1.x",
     "@material-ui/core": "3.6.x",
     "@material-ui/icons": "3.0.x",
-    "@svgr/webpack": "2.4.x",
-    "babel-loader": "8.0.x",
-    "babel-plugin-named-asset-import": "0.2.x",
-    "babel-preset-react-app": "6.1.x",
-    "bfj": "6.1.x",
-    "case-sensitive-paths-webpack-plugin": "2.1.x",
-    "chalk": "2.4.x",
-    "css-loader": "1.0.x",
-    "dotenv": "6.0.x",
-    "dotenv-expand": "4.2.x",
-    "eslint": "5.6.x",
-    "eslint-config-react-app": "3.0.x",
-    "eslint-loader": "2.1.x",
-    "eslint-plugin-flowtype": "2.50.x",
-    "eslint-plugin-import": "2.14.x",
-    "eslint-plugin-jsx-a11y": "6.1.x",
-    "eslint-plugin-react": "7.11.x",
-    "file-loader": "2.0.x",
-    "fork-ts-checker-webpack-plugin-alt": "0.4.x",
-    "fs-extra": "7.0.x",
-    "html-webpack-plugin": "3.2.0",
-    "identity-obj-proxy": "3.0.x",
-    "jest": "23.6.x",
-    "jest-pnp-resolver": "1.0.x",
-    "jest-resolve": "23.6.x",
     "lodash": "4.17.x",
-    "mini-css-extract-plugin": "0.4.x",
-    "mobx": "5.8.x",
-    "mobx-react": "5.4.x",
-    "optimize-css-assets-webpack-plugin": "5.0.x",
-    "pnp-webpack-plugin": "1.1.x",
-    "postcss-flexbugs-fixes": "4.1.x",
-    "postcss-loader": "3.0.x",
-    "postcss-preset-env": "6.0.x",
-    "postcss-safe-parser": "4.0.x",
+    "mobx": "^5.8.0",
+    "mobx-react": "^5.4.3",
     "react": "16.6.x",
-    "react-app-polyfill": "0.1.x",
-    "react-app-rewire-mobx": "1.0.x",
-    "react-dev-utils": "6.1.x",
+    "react-app-rewire-mobx": "^1.0.9",
+    "react-app-rewired": "^1.6.2",
     "react-dom": "16.6.x",
     "react-jss": "8.6.x",
+    "react-scripts": "2.1.1",
     "redux": "4.0.x",
-    "resolve": "1.8.x",
-    "sass-loader": "7.1.x",
-    "style-loader": "0.23.x",
-    "terser-webpack-plugin": "1.1.x",
-    "typeface-roboto": "0.0.x",
-    "url-loader": "1.1.x",
-    "webpack": "4.19.x",
-    "webpack-dev-server": "3.1.x",
-    "webpack-manifest-plugin": "2.0.x",
-    "workbox-webpack-plugin": "3.6.x"
+    "typeface-roboto": "^0.0.54"
   },
   "devDependencies": {
     "@types/classnames": "2.2.x",
@@ -69,9 +27,6 @@
     "@types/lodash": "4.14.x",
     "@types/react": "16.7.x",
     "@types/react-dom": "16.0.x",
-    "babel-core": "^7.0.0-bridge",
-    "babel-eslint": "9.0.x",
-    "babel-jest": "23.6.x",
     "jest": "23.6.x",
     "prettier": "1.15.x",
     "ts-jest": "23.10.x",
@@ -79,9 +34,10 @@
     "typescript": "3.2.x"
   },
   "scripts": {
-    "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -91,51 +47,5 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ],
-  "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/**/*.d.ts"
-    ],
-    "resolver": "jest-pnp-resolver",
-    "setupFiles": [
-      "react-app-polyfill/jsdom"
-    ],
-    "testMatch": [
-      "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
-      "<rootDir>/src/**/?(*.)(spec|test).{js,jsx,ts,tsx}"
-    ],
-    "testEnvironment": "jsdom",
-    "testURL": "http://localhost",
-    "transform": {
-      "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
-      "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
-      "^(?!.*\\.(js|jsx|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
-    },
-    "transformIgnorePatterns": [
-      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$",
-      "^.+\\.module\\.(css|sass|scss)$"
-    ],
-    "moduleNameMapper": {
-      "^react-native$": "react-native-web",
-      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
-    },
-    "moduleFileExtensions": [
-      "web.js",
-      "js",
-      "web.ts",
-      "ts",
-      "web.tsx",
-      "tsx",
-      "json",
-      "web.jsx",
-      "jsx",
-      "node"
-    ]
-  },
-  "babel": {
-    "presets": [
-      "react-app"
-    ]
-  }
+  ]
 }
