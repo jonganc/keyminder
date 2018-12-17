@@ -15,7 +15,7 @@
     "noUnusedParameters": true,
     "noUnusedLocals": true,
     "noImplicitReturns": true,
-    "experimentalDecorators": true
+    "skipLibCheck": false
   },
   "include": ["src"]
 }
