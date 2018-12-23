@@ -14,11 +14,35 @@ export type Modifier =
   | 'Alt'
   | 'Shift'
   | 'NumLock'
-  | 'ScrollLock'
-  | 'Meta'
-  | 'Super'
   | 'Win'
+  | 'Super'
+  | 'Meta'
   | 'Hyper';
+
+/**
+ * modifiers and how to display them, by default
+ * @param display what to display for the shortened form, as html. null to indicate no default form
+ * @param order The relative order,lowest first.
+ */
+export const modifiers: {
+  [key in Modifier]:
+    | { display: string; order: number }
+    | { display: null; order?: undefined }
+} = {
+  Control: { display: 'C', order: 10 },
+  Alt: { display: 'A', order: 20 },
+  Shift: { display: '&#x21E7;', order: 30 }, // ⇧
+  NumLock: { display: null },
+  Win: { display: 'Win', order: 40 },
+  Super: { display: 'S', order: 50 },
+  Meta: { display: 'M', order: 60 },
+  Hyper: { display: 'H', order: 70 },
+};
+
+/**
+ * the default html for a modded key
+ */
+export function defaultKeyHtml(moddedKey: ModdedKey) {}
 
 /**
  * a key with appropriate modifiers
