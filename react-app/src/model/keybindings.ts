@@ -1,3 +1,5 @@
+import { DeepMap } from './types';
+
 /**
  * the most basic unit of a key sequence, e.g. "A" or "PageUp", and which can be modified with modifiers like "Shift" or "Control"
  * key names match what would be in the KeyboardEvent.key property of a keyboard event in a web browser. In particular:
@@ -34,7 +36,6 @@ export interface ModdedKey {
 
 export type KeySequence = ModdedKey[];
 
-export type KeyBinding = {
-  keySequence: KeySequence;
-  binding: string;
-};
+export type Binding = string;
+
+export type KeyBinding = DeepMap<KeySequence, string>;
