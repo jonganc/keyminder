@@ -23,19 +23,21 @@ export class Point {
 
 export type RawShape = [RawPoint, RawPoint, RawPoint, ...RawPoint[]];
 
+type ShapePoints = [Point, Point, Point, ...Point[]];
+
 /**
  * the shape of a keyboard key
  * Being a non-flat 2-dimensional objects, it needs at least three points
  */
 export class Shape {
-  constructor(public readonly points: [Point, Point, Point, ...Point[]]) {}
+  constructor(public readonly points: ShapePoints) {}
 
   static fromRawShape(rawShape: RawShape) {
-    return new Shape(rawShape.map(rp => new Point(rp)));
+    return new Shape(rawShape.map(rp => new Point(rp)) as ShapePoints);
   }
 
   translate(x: number, y: number): Shape {
-    return new Shape(this.points.map(p => p.translate(x, y)));
+    return new Shape(this.points.map(p => p.translate(x, y)) as ShapePoints);
   }
 }
 

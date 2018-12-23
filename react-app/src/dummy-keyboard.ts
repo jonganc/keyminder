@@ -2,6 +2,7 @@
 
 import { Geometry, KeyLabels, Layout, Shape } from './model/keyboard-layout';
 import { DeepMap } from './model/types';
+import { Modifier } from './model/keybindings';
 
 const basicKeyCapShape = Shape.fromRawShape([
   [0, 0],
@@ -42,13 +43,49 @@ export const geometry: Geometry = [
 ];
 
 export const layout: Layout = new Map([
-  ['AE01', new DeepMap([[new Set(), 'q'], [new Set(['Shift']), 'Q']])],
-  ['AE02', new DeepMap([[new Set(), 'w'], [new Set(['Shift']), 'W']])],
-  ['AE03', new DeepMap([[new Set(), 'e'], [new Set(['Shift']), 'E']])],
-  ['RTRN', new DeepMap([[new Set(), 'Enter']])],
-  ['AD01', new DeepMap([[new Set(), 'a'], [new Set(['Shift']), 'A']])],
-  ['AD02', new DeepMap([[new Set(), 's'], [new Set(['Shift']), 'S']])],
-  ['AD03', new DeepMap([[new Set(), 'd'], [new Set(['Shift']), 'D']])],
+  [
+    'AE01',
+    new DeepMap([
+      [new Set<Modifier>(), 'q'],
+      [new Set<Modifier>(['Shift']), 'Q'],
+    ]),
+  ],
+  [
+    'AE02',
+    new DeepMap([
+      [new Set<Modifier>(), 'w'],
+      [new Set<Modifier>(['Shift']), 'W'],
+    ]),
+  ],
+  [
+    'AE03',
+    new DeepMap([
+      [new Set<Modifier>(), 'e'],
+      [new Set<Modifier>(['Shift']), 'E'],
+    ]),
+  ],
+  ['RTRN', new DeepMap([[new Set<Modifier>(), 'Enter']])],
+  [
+    'AD01',
+    new DeepMap([
+      [new Set<Modifier>(), 'a'],
+      [new Set<Modifier>(['Shift']), 'A'],
+    ]),
+  ],
+  [
+    'AD02',
+    new DeepMap([
+      [new Set<Modifier>(), 's'],
+      [new Set<Modifier>(['Shift']), 'S'],
+    ]),
+  ],
+  [
+    'AD03',
+    new DeepMap([
+      [new Set<Modifier>(), 'd'],
+      [new Set<Modifier>(['Shift']), 'D'],
+    ]),
+  ],
 ]);
 
 export const keyLabels: KeyLabels = new Map([]);
