@@ -7,7 +7,7 @@ import {
   ModdedKey,
   Modifier,
 } from './key-bindings';
-import { Geometry, KeyCap, KeyLabels, Layout } from './keyboard-layout';
+import { Geometry, VirtualKey, KeyLabels, Layout } from './keyboard-layout';
 import { DeepMap, Label } from './types';
 
 // combine key bindings and layouts into keyboards
@@ -19,7 +19,7 @@ export interface LocizedKey {
 
 export type LocizdKeyMapping = DeepMap<Set<Modifier>, LocizedKey>;
 
-export type LocizdKeyCap = KeyCap & {
+export type LocizdKeyCap = VirtualKey & {
   locizdKeyMappings: LocizdKeyMapping;
 };
 
@@ -43,7 +43,7 @@ export type PartialKeyboardKeyBindings = DeepMap<
 /**
  * a keycap with bindings
  */
-export type PartialKeyboardKeyCap = KeyCap & {
+export type PartialKeyboardKeyCap = VirtualKey & {
   keyBindings: PartialKeyboardKeyBindings;
 };
 
@@ -70,11 +70,11 @@ export function makeLocizdGeomtry({
       continue;
     }
 
+    const label = _.defaultTo(keyLabels.get(keyMapping.get()), key);
+
     const locizdKeyMappingPairs: Array<[Set<Modifier>, LocizedKey]> = [
       ...keyMapping.entries(),
     ].map(([modifiers, key]) => {
-      const label = _.defaultTo(keyLabels.get({ key, modifiers }), key);
-
       [modifiers];
     });
 

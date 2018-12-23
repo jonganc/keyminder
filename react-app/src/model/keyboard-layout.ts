@@ -42,9 +42,9 @@ export class Shape {
 }
 
 /**
- * a virtual keycap, representing the appearance of a key and which keycode it represents
+ * a virtual key, representing the size and location of a physical key and which keycode it represents
  */
-export interface KeyCap {
+export interface VirtualKey {
   keyCode: KeyCode;
   shape: Shape;
 }
@@ -52,22 +52,22 @@ export interface KeyCap {
 /**
  * the geometry of a keyboard type, e.g. the generic geometry of 105-key keyboard
  */
-export type Geometry = KeyCap[];
+export type Geometry = VirtualKey[];
+
+export interface KeyCapKey {
+  key: Key;
+  keyLabel: Label;
+}
 
 /**
- * A mapping giving the meaning of a KeyCode being pressed with various modifers.
+ * A mapping giving the meaning (in terms of a key) and appearance of a KeyCode being pressed with various modifers.
  * Note that if a KeyCode with a Modifier maps to a key, that key will be produced without the modifier. E.g., the physical key 'A' on a US keyboard has the keymapping `[[[], 'a'], [['shift'], 'A']]`, which means that when Shift is held and the key 'A' is pressed, a ModdedKey of `{ key: 'A', modifiers: new Set() }` is generated, not  `{ key: 'a', modifiers: new Set('Shift') }` or `{ key: 'A', modifiers: new Set('Shift') }`
  */
-export type KeyMapping = DeepMap<Set<Modifier>, Key>;
+export type KeyCapMapping = DeepMap<Set<Modifier>, KeyCapKey>;
 
 /**
  * a mapping of KeyCode's to Key's, i.e. a keyboard localization
  * (this could well be called Localization instead of Layout).
  * E.g. a layout lets us go from the Geometry of a 105-key keyboard to a US 105-key keyboard
  */
-export type Layout = Map<KeyCode, KeyMapping>;
-
-/**
- * What will be shown on a kay. Can be text or a react component. If not given for a key, the key itself is used
- */
-export type KeyLabels = DeepMap<ModdedKey, Label>;
+export type Layout = Map<KeyCode, KeyCapMapping>;

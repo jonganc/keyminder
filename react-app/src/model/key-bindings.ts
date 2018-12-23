@@ -40,11 +40,6 @@ export const modifiers: {
 };
 
 /**
- * the default html for a modded key
- */
-export function defaultKeyHtml(moddedKey: ModdedKey) {}
-
-/**
  * a key with appropriate modifiers
  */
 export interface ModdedKey {
