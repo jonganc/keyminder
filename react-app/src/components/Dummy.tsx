@@ -1,31 +1,19 @@
-import {
-  createStyles,
-  Theme,
-  WithStyles,
-  withStyles,
-} from '@material-ui/core/styles';
+import { createStyles, WithStyles, withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    root: theme.mixins.gutters({
-      paddingTop: 80,
-      flex: '1 1 100%',
-      maxWidth: '100%',
-      margin: '0 auto',
-    }),
-    [theme.breakpoints.up('md')]: {
-      blogRoot: {
-        maxWidth: theme.breakpoints.values.md,
-      },
-    },
-  });
+const styles = createStyles({
+  root: {
+    paddingTop: 80,
+    flex: '1 1 100%',
+    maxWidth: '100%',
+    margin: '0 auto',
+  },
+});
 
-class App extends Component<
-  WithStyles<ReturnType<typeof styles>> & { className?: string }
-> {
+class App extends Component<WithStyles<typeof styles>> {
   render() {
-    return <div>Abcdef</div>;
+    const { classes } = this.props;
+    return <div className={classes.root}>Abcdef</div>;
   }
 }
 

@@ -1,6 +1,6 @@
 // a dummy keyboard for testing
 
-import { Modifier } from '../model/keybindings';
+import { Modifier } from '../model/key-bindings';
 import { Geometry, KeyLabels, Layout, Shape } from '../model/keyboard-layout';
 import { DeepMap } from '../model/types';
 

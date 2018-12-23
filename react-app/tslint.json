@@ -35,18 +35,19 @@
     "indent": {
       "options": ["spaces"]
     },
-    "interface-name": {
-      "options": ["always-prefix"]
-    },
+    "interface-name": false,
     "interface-over-type-literal": true,
     "jsdoc-format": true,
     "label-position": true,
     "max-classes-per-file": {
       "options": [1]
     },
-    "max-line-length": {
-      "options": [120]
-    },
+    "max-line-length": [
+      true,
+      {
+        "options": { "limit": 90, "ignore-pattern": "^ *//|^ ** " }
+      }
+    ],
     "member-access": [{ "options": ["no-public"] }],
     "member-ordering": {
       "options": {
@@ -168,7 +169,12 @@
     "unified-signatures": true,
     "use-isnan": true,
     "variable-name": {
-      "options": ["ban-keywords", "check-format", "allow-pascal-case"]
+      "options": [
+        "ban-keywords",
+        "check-format",
+        "allow-pascal-case",
+        "allow-leading-underscore"
+      ]
     },
     "whitespace": {
       "options": [

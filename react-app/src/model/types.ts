@@ -6,7 +6,7 @@ function notImplementedYet(..._: any[]) {
  * A map that uses (lodash's) l_.isEqual for determining key equality
  */
 export class DeepMap<Key, Value> {
-  constructor(private _pairs: [Key, Value][]) {}
+  constructor(private _pairs: Array<[Key, Value]>) {}
 
   public clear(): void {
     this._pairs = [];
@@ -37,3 +37,5 @@ export class DeepMap<Key, Value> {
     return this._pairs.length;
   }
 }
+
+export type Label = string | React.Component;

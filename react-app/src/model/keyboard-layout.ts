@@ -1,5 +1,5 @@
-import { Key, Modifier } from './keybindings';
-import { DeepMap } from './types';
+import { Key, Modifier, ModdedKey } from './keybindings';
+import { DeepMap, Label } from './types';
 
 /**
  * a code that corresponds to a particular physical location on a keyboard, without specifying what that location actually represents.
@@ -42,15 +42,11 @@ export class Shape {
 }
 
 /**
- * a virtual keycap, representing the appearance of a key and what happens when it is pushed
+ * a virtual keycap, representing the appearance of a key and which keycode it represents
  */
 export interface KeyCap {
   keyCode: KeyCode;
   shape: Shape;
-  /**
-   * this can be any HTML
-   */
-  label?: string;
 }
 
 /**
@@ -65,12 +61,13 @@ export type Geometry = KeyCap[];
 export type KeyMapping = DeepMap<Set<Modifier>, Key>;
 
 /**
- * a mapping of KeyCode's to Key's
+ * a mapping of KeyCode's to Key's, i.e. a keyboard localization
+ * (this could well be called Localization instead of Layout).
  * E.g. a layout lets us go from the Geometry of a 105-key keyboard to a US 105-key keyboard
  */
 export type Layout = Map<KeyCode, KeyMapping>;
 
 /**
- * What will be shown on a kay. Can be arbitrary html. If not given for a key, the key itself is used
+ * What will be shown on a kay. Can be text or a react component. If not given for a key, the key itself is used
  */
-export type KeyLabels = Map<Key, string>;
+export type KeyLabels = DeepMap<ModdedKey, Label>;

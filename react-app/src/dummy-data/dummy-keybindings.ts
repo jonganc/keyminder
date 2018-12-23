@@ -1,6 +1,7 @@
-import { DeepMap } from './model/types';
+import { DeepMap } from '../model/types';
+import { KeyBindings } from '../model/key-bindings';
 
-export const keybindings = new DeepMap([
+export const keyBindings: KeyBindings = new DeepMap([
   [{ key: 'q', modifiers: new Set() }, 'self-insert-command'],
   [{ key: 'w', modifiers: new Set() }, 'self-insert-command'],
   [{ key: 'e', modifiers: new Set() }, 'self-insert-command'],

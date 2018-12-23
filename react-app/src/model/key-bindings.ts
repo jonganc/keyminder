@@ -1,4 +1,4 @@
-import { DeepMap } from './types';
+import { DeepMap, Label } from './types';
 
 /**
  * the most basic unit of a key sequence, e.g. "A" or "PageUp", and which can be modified with modifiers like "Shift" or "Control"
@@ -38,4 +38,7 @@ export type KeySequence = ModdedKey[];
 
 export type Binding = string;
 
-export type KeyBinding = DeepMap<KeySequence, string>;
+export type KeyBindings = DeepMap<KeySequence, Binding>;
+
+// we allow for bindings to be denoted by labels instead of the binding name
+export type BindingLabels = DeepMap<Binding, Label>;
