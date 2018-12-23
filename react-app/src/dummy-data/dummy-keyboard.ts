@@ -1,8 +1,8 @@
 // a dummy keyboard for testing
 
-import { Geometry, KeyLabels, Layout, Shape } from './model/keyboard-layout';
-import { DeepMap } from './model/types';
-import { Modifier } from './model/keybindings';
+import { Modifier } from '../model/keybindings';
+import { Geometry, KeyLabels, Layout, Shape } from '../model/keyboard-layout';
+import { DeepMap } from '../model/types';
 
 const basicKeyCapShape = Shape.fromRawShape([
   [0, 0],
