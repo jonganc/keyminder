@@ -1,4 +1,4 @@
-import { Key, Modifier, ModdedKey } from './keybindings';
+import { Key, ModdedKey, Modifier } from './key-bindings';
 import { DeepMap, Label } from './types';
 
 /**

@@ -27,7 +27,7 @@ export interface ModdedKey {
   /**
    * the key on the keyboard
    */
-  key: string;
+  key: Key;
   /**
    * the modifiers applied to the key
    */
