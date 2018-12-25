@@ -60,9 +60,12 @@ export interface ModdedKeyEvent {
 
 export type KeySequence = ModdedKeyEvent[];
 
-export type Binding = string;
+export type Binding = string | KeyMap;
 
-export type KeyBindings = DeepMap<KeySequence, Binding>;
+export interface KeyMap {
+  name?: string;
+  bindings: DeepMap<KeySequence, Binding>;
+}
 
 // we allow for bindings to be denoted by labels instead of the binding name
 export type BindingLabels = DeepMap<Binding, Label>;

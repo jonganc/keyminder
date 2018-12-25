@@ -24,7 +24,7 @@ export type Geometry = VirtualKey[];
 
 export interface KeyCapKey {
   keyEvent: KeyEvent;
-  keyEventLabel: Label;
+  keyCapLabel: Label;
 }
 
 /**

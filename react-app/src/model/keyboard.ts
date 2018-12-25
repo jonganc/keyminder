@@ -3,7 +3,7 @@ import { Modifiers } from 'popper.js';
 import {
   Binding,
   BindingLabels,
-  KeyBindings,
+  KeyMap,
   KeySequence,
   ModdedKeyEvent,
 } from './key-bindings';
@@ -27,11 +27,7 @@ export type PhysicalKeyBindings = DeepMap<
      * The physical-key modifiers might be transformed to produce the key-event modifiers, which is what is actually used to determine the bindings. Thus, we include the key-event modifiers for completeness. E.g. if we press Ctrl-Shift-A, the physical-key modifiers will be [Ctrl, Shift] but the key-event modifiers will just be [Ctrl].
      */
     keyEventModifiers: Modifiers;
-    /**
-     * The binding for a set of `PhysicalKeyBindings` bindings.
-     * A value of `null` means that the key is an incomplete part of a key-sequence
-     */
-    binding: Binding | null;
+    binding: Binding;
     bindingLabel: Label;
   }
 >;
@@ -58,7 +54,7 @@ interface AccessibleBinding {
  * return all bindings in `keybindings` accessible from the current key sequence pressed
  */
 function getAccessibleBindings(
-  keyBindings: KeyBindings,
+  keyBindings: KeyMap,
   keySequenceState: KeySequence,
 ): AccessibleBinding[] {
   return [...keyBindings.entries()]
@@ -92,7 +88,7 @@ export function makePhysicalKeyWiAccessibleBindings({
   keySequenceState,
 }: {
   keyboard: Keyboard;
-  keyBindings: KeyBindings;
+  keyBindings: KeyMap;
   keySequenceState: KeySequence;
 }): KeyboardWiAccessibleBindings {
   const accessibleBindings = getAccessibleBindings(

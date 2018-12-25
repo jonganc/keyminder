@@ -1,7 +1,7 @@
 import { createStyles, WithStyles, withStyles } from '@material-ui/core/styles';
 import { Shape } from '@material-ui/core/styles/shape';
 import React, { Component } from 'react';
-import { Binding, KeyBindings, ModdedKeyEvent } from '../model/key-bindings';
+import { Binding, KeyMap, ModdedKeyEvent } from '../model/key-bindings';
 import { Geometry, KeyLabels, Layout } from '../model/keyboard';
 import { DeepMap, Label } from '../model/types';
 import './Keyboard.scss';
@@ -25,7 +25,7 @@ class App extends Component<
     geometry: Geometry;
     keyEventLabels: KeyLabels;
 
-    keybindings: KeyBindings;
+    keybindings: KeyMap;
   }
 > {
   render() {
