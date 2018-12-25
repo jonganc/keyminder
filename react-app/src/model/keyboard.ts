@@ -20,7 +20,7 @@ import { DeepMap, Label } from './types';
 
 // combine key bindings and layouts into keyboards
 
-export type PhysicalKeyBindings = DeepMap<
+export type PartialKeyBindings = DeepMap<
   Modifiers,
   KeyCapKey & {
     /**
@@ -44,14 +44,14 @@ export type PhysicalKeyBindings = DeepMap<
 /**
  * a keycap with bindings accessible from a particular state
  */
-export type PhysicalKeyWiAccessibleBindings = VirtualKey & {
-  bindings: PhysicalKeyBindings;
+export type PhysicalKeyWiPartialBindings = VirtualKey & {
+  bindings: PartialKeyBindings;
 };
 
 /**
  * All keybindings immediately accessible from a particular state (i.e. a sequence of keys already pressed).
  */
-export type KeyboardWiAccessibleBindings = PhysicalKeyWiAccessibleBindings[];
+export type KeyboardWiPartialBindings = PhysicalKeyWiPartialBindings[];
 
 // this is used only for `getAccessibleBindings`
 interface AccessibleBinding {
@@ -100,7 +100,7 @@ export function makePhysicalKeyWiAccessibleBindings({
   keyboard: Keyboard;
   keyBindings: KeyBindings;
   keySequenceState: KeySequence;
-}): KeyboardWiAccessibleBindings {
+}): KeyboardWiPartialBindings {
   const accessibleBindings = getAccessibleBindings(
     keyBindings,
     keySequenceState,
