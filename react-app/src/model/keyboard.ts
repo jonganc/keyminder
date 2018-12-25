@@ -10,7 +10,7 @@ import {
 import {
   Geometry,
   KeyCap,
-  KeyCapKey,
+  LabeledKeyCapEvent,
   KeyCaps,
   VirtualKey,
   Keyboard,
@@ -22,7 +22,7 @@ import { DeepMap, Label } from './types';
 
 export type PhysicalKeyBindings = DeepMap<
   Modifiers,
-  KeyCapKey & {
+  LabeledKeyCapEvent & {
     /**
      * The physical-key modifiers might be transformed to produce the key-event modifiers, which is what is actually used to determine the bindings. Thus, we include the key-event modifiers for completeness. E.g. if we press Ctrl-Shift-A, the physical-key modifiers will be [Ctrl, Shift] but the key-event modifiers will just be [Ctrl].
      */
@@ -32,9 +32,6 @@ export type PhysicalKeyBindings = DeepMap<
   }
 >;
 
-/**
- * a keycap with bindings accessible from a particular state
- */
 export type PhysicalKeyWiAccessibleBindings = VirtualKey & {
   bindings: PhysicalKeyBindings;
 };
@@ -44,20 +41,27 @@ export type PhysicalKeyWiAccessibleBindings = VirtualKey & {
  */
 export type KeyboardWiAccessibleBindings = PhysicalKeyWiAccessibleBindings[];
 
-interface AccessibleBinding {
-  binding: Binding;
-  keySequence: KeySequence;
-  remainingKeySequence: KeySequence;
-}
+/**
+ * Search for `keySequence` in `keyMap`
+ * @returns If binding is not found
+ */
+function scanKeyMapForKeySequence(
+  keyMap: KeyMap,
+  keySequence: KeySequence,
+): { binding: Binding; remainingKeySequence: KeySequence } | undefined {}
 
 /**
  * return all bindings in `keybindings` accessible from the current key sequence pressed
  */
 function getAccessibleBindings(
-  keyBindings: KeyMap,
+  keyMap: KeyMap,
   keySequenceState: KeySequence,
-): AccessibleBinding[] {
-  return [...keyBindings.entries()]
+): Array<{
+  binding: Binding;
+  keySequence: KeySequence;
+  remainingKeySequence: KeySequence;
+}> {
+  return [...keyMap.bindings.entries()]
     .map(([keySequence, binding]) => {
       if (
         l_.isEqual(
@@ -73,9 +77,7 @@ function getAccessibleBindings(
       }
       return undefined;
     })
-    .filter((b => b !== undefined) as (
-      b: AccessibleBinding | undefined,
-    ) => b is AccessibleBinding);
+    .filter((b => b !== undefined) as <T>(b: T | undefined) => b is T);
 }
 
 /**
