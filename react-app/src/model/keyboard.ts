@@ -1,101 +1,96 @@
-import * as l_ from 'lodash';
+import l_ from 'lodash';
+import { Modifiers } from 'popper.js';
 import {
   Binding,
-  Key,
+  BindingLabels,
   KeyBindings,
   KeySequence,
   ModdedKey,
-  Modifier,
 } from './key-bindings';
-import { Geometry, VirtualKey, KeyLabels, Layout } from './keyboard-layout';
+import {
+  Geometry,
+  KeyCap,
+  KeyCapKey,
+  KeyCaps,
+  VirtualKey,
+  Keyboard,
+} from './keyboard-layout';
 import { DeepMap, Label } from './types';
 
 // combine key bindings and layouts into keyboards
 
-export interface LocizedKey {
-  key: Key;
-  keyLabel: Label;
-}
-
-export type LocizdKeyMapping = DeepMap<Set<Modifier>, LocizedKey>;
-
-export type LocizdKeyCap = VirtualKey & {
-  locizdKeyMappings: LocizdKeyMapping;
-};
-
 /**
- * one specific keyboard, with the actual keys that are passed to programs on key presses
+ * The binding options for a `PartialKeyboardFullKeyBindings`
+ * a value of `null` means that the pressed key would be an incomplete part of a key-sequence
  */
-export type LocizdGeometry = LocizdKeyCap[];
+type PartialKeyboardKeyBinding = Binding | null;
 
-export type PartialKeyboardKeyBindings = DeepMap<
-  Set<Modifier>,
-  LocizedKey &
+export type PartialKeyboardFullKeyBindings = DeepMap<
+  Modifiers,
+  KeyCapKey &
+    // this represents the fact that the binding might not have the same modifiers
     ModdedKey & {
       bindingLabel: Label;
-      /**
-       * a value of `null` means that the pressed key would be an incomplete part of a key-sequence
-       */
-      binding: Binding | null;
+      binding: PartialKeyboardKeyBinding;
     }
 >;
 
 /**
  * a keycap with bindings
  */
-export type PartialKeyboardKeyCap = VirtualKey & {
-  keyBindings: PartialKeyboardKeyBindings;
+export type PartialKeyboardKey = VirtualKey & {
+  bindings: PartialKeyboardFullKeyBindings;
 };
 
 /**
- * A partial keyboard gives all keybindings reachable from the current state using one key press. (The current state refers to what keys have been pressed previously; e.g. it might be the state with no keys pressed or with [C-x] pressed, etc.)
+ * A partial keyboard gives all keybindings immediately reachable from a particular state (i.e. a sequence of keys already pressed).
  */
-export type PartialKeyboard = PartialKeyboardKeyCap[];
+export type PartialKeyboard = PartialKeyboardKey[];
 
-export function makeLocizdGeomtry({
-  layout,
-  geometry,
-  keyLabels,
-}: {
-  layout: Layout;
-  geometry: Geometry;
-  keyLabels: KeyLabels;
-}): LocizdGeometry {
-  const locizdGeometry: LocizdGeometry = [];
-
-  for (const keyCap of geometry) {
-    const keyMapping = layout.get(keyCap.keyCode);
-
-    if (keyMapping === undefined) {
-      continue;
-    }
-
-    const label = _.defaultTo(keyLabels.get(keyMapping.get()), key);
-
-    const locizdKeyMappingPairs: Array<[Set<Modifier>, LocizedKey]> = [
-      ...keyMapping.entries(),
-    ].map(([modifiers, key]) => {
-      [modifiers];
-    });
-
-    for (const [modifiers, key] of keyMapping.entries()) {
-    }
-    return { ...keyCap, locizdKeyMappings: 1 };
-  }
+interface AccessibleBinding {
+  binding: Binding;
+  keySequence: KeySequence;
+  remainingKeySequence: KeySequence;
 }
 
 /**
- * make a partial keyboard, as defined in `PartialKeyboard`
- * @param keySequence The key sequence pressed so far
+ * return all bindings in `keybindings` accessible from the current key sequence pressed
+ */
+function bindingsAccessbileFromKeySequenceState(
+  keyBindings: KeyBindings,
+  keySequenceState: KeySequence,
+): AccessibleBinding[] {
+  return [...keyBindings.entries()]
+    .map(([keySequence, binding]) => {
+      if (
+        l_.isEqual(
+          keySequence.slice(0, keySequenceState.length),
+          keySequenceState,
+        )
+      ) {
+        return {
+          binding,
+          keySequence,
+          remainingKeySequence: keySequence.slice(keySequenceState.length),
+        };
+      }
+      return undefined;
+    })
+    .filter((b => b !== undefined) as (
+      b: AccessibleBinding | undefined,
+    ) => b is AccessibleBinding);
+}
+
+/**
+ * make a partial keyboard
+ * @param keySequenceState The key sequence pressed so far
  */
 export function makePartialKeyboard({
-  locizdGeometry,
+  keyboard,
   keyBindings,
-  keySequence,
+  keySequenceState,
 }: {
-  locizdGeometry: LocizdGeometry;
+  keyboard: Keyboard;
   keyBindings: KeyBindings;
-  keySequence: KeySequence;
-}) {
-  const;
-}
+  keySequenceState: KeySequence;
+}): PartialKeyboard {}

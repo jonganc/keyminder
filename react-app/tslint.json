@@ -7,7 +7,7 @@
     "array-type": {
       "options": ["array-simple"]
     },
-    "arrow-parens": true,
+    "arrow-parens": false,
     "arrow-return-shorthand": true,
     "ban-types": {
       "options": [
@@ -39,9 +39,7 @@
     "interface-over-type-literal": true,
     "jsdoc-format": true,
     "label-position": true,
-    "max-classes-per-file": {
-      "options": [1]
-    },
+    "max-classes-per-file": false,
     "max-line-length": [
       true,
       {

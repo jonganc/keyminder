@@ -19,12 +19,17 @@ export type Modifier =
   | 'Meta'
   | 'Hyper';
 
+export type Modifiers = Set<Modifier>;
+export function Modifiers(...args) {
+  return new Set(...args);
+}
+
 /**
  * modifiers and how to display them, by default
  * @param display what to display for the shortened form, as html. null to indicate no default form
  * @param order The relative order,lowest first.
  */
-export const modifiers: {
+export const modifierDisplays: {
   [key in Modifier]:
     | { display: string; order: number }
     | { display: null; order?: undefined }
@@ -50,7 +55,7 @@ export interface ModdedKey {
   /**
    * the modifiers applied to the key
    */
-  modifiers: Set<Modifier>;
+  modifiers: Modifiers;
 }
 
 export type KeySequence = ModdedKey[];
