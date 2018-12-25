@@ -5,7 +5,7 @@ import {
   BindingLabels,
   KeyBindings,
   KeySequence,
-  ModdedKey,
+  ModdedKeyEvent,
 } from './key-bindings';
 import {
   Geometry,
@@ -20,27 +20,27 @@ import { DeepMap, Label } from './types';
 
 // combine key bindings and layouts into keyboards
 
-/**
- * The binding options for a `PartialKeyboardFullKeyBindings`
- * a value of `null` means that the pressed key would be an incomplete part of a key-sequence
- */
-type PartialKeyboardKeyBinding = Binding | null;
-
-export type PartialKeyboardFullKeyBindings = DeepMap<
+export type PhysicalKeyBindings = DeepMap<
   Modifiers,
-  KeyCapKey &
-    // this represents the fact that the binding might not have the same modifiers
-    ModdedKey & {
-      bindingLabel: Label;
-      binding: PartialKeyboardKeyBinding;
-    }
+  KeyCapKey & {
+    /**
+     * The physical-key modifiers might be transformed to produce the key-event modifiers, which is what is actually used to determine the bindings. Thus, we include the key-event modifiers for completeness. E.g. if we press Ctrl-Shift-A, the physical-key modifiers will be [Ctrl, Shift] but the key-event modifiers will just be [Ctrl].
+     */
+    keyEventModifiers: Modifiers;
+    /**
+     * The binding for a set of `PhysicalKeyBindings` bindings.
+     * A value of `null` means that the pressed key would be an incomplete part of a key-sequence
+     */
+    binding: Binding | null;
+    bindingLabel: Label;
+  }
 >;
 
 /**
- * a keycap with bindings
+ * a keycap with bindings accessible from a particular state
  */
-export type PhysicalKeyWiAccessibleBindings = PhysicalKey & {
-  bindings: PartialKeyboardFullKeyBindings;
+export type PhysicalKeyWiAccessibleBindings = VirtualKey & {
+  bindings: PhysicalKeyBindings;
 };
 
 /**

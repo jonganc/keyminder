@@ -7,7 +7,7 @@ import { DeepMap, Label } from './types';
  * - for non-printable keys, the names are given at https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values, e.g. 'Alt', 'NumLock'
  */
 //
-export type Key = string;
+export type KeyEvent = string;
 
 export type Modifier =
   | 'Control'
@@ -47,18 +47,18 @@ export const modifierDisplays: {
 /**
  * a key with appropriate modifiers
  */
-export interface ModdedKey {
+export interface ModdedKeyEvent {
   /**
    * the key on the keyboard
    */
-  key: Key;
+  keyEvent: KeyEvent;
   /**
    * the modifiers applied to the key
    */
   modifiers: Modifiers;
 }
 
-export type KeySequence = ModdedKey[];
+export type KeySequence = ModdedKeyEvent[];
 
 export type Binding = string;
 

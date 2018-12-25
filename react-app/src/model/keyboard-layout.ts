@@ -1,5 +1,5 @@
 import { Modifiers } from 'popper.js';
-import { Key } from './key-bindings';
+import { KeyEvent } from './key-bindings';
 import { DeepMap, Label, Shape } from './types';
 
 /**
@@ -23,8 +23,8 @@ export interface VirtualKey {
 export type Geometry = VirtualKey[];
 
 export interface KeyCapKey {
-  key: Key;
-  keyLabel: Label;
+  keyEvent: KeyEvent;
+  keyEventLabel: Label;
 }
 
 /**

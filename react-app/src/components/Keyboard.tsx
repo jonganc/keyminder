@@ -1,12 +1,12 @@
 import { createStyles, WithStyles, withStyles } from '@material-ui/core/styles';
 import { Shape } from '@material-ui/core/styles/shape';
 import React, { Component } from 'react';
-import { Binding, KeyBindings, ModdedKey } from '../model/key-bindings';
+import { Binding, KeyBindings, ModdedKeyEvent } from '../model/key-bindings';
 import { Geometry, KeyLabels, Layout } from '../model/keyboard';
 import { DeepMap, Label } from '../model/types';
 import './Keyboard.scss';
 
-type LabeledKeys = DeepMap<ModdedKey, { label: Label; binding: Binding }>;
+type LabeledKeys = DeepMap<ModdedKeyEvent, { label: Label; binding: Binding }>;
 
 type Keyboard = Array<{ shape: Shape; labeledKeys: LabeledKeys }>;
 
@@ -23,7 +23,7 @@ class App extends Component<
   WithStyles<typeof styles> & {
     layout: Layout;
     geometry: Geometry;
-    keyLabels: KeyLabels;
+    keyEventLabels: KeyLabels;
 
     keybindings: KeyBindings;
   }

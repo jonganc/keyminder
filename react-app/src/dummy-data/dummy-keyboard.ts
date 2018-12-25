@@ -52,4 +52,4 @@ export const layout: KeyCaps = new Map([
   ['AD03', new DeepMap([[Modifiers(), 'd'], [Modifiers(['Shift']), 'D']])],
 ]);
 
-export const keyLabels: KeyLabels = new Map([]);
+export const keyEventLabels: KeyLabels = new Map([]);
