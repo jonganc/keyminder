@@ -24,7 +24,7 @@ export type Geometry = VirtualKey[];
 
 export interface KeyCapKey {
   keyEvent: KeyEvent;
-  keyCapLabel: Label;
+  keyCapLabel?: Label;
 }
 
 /**
@@ -38,6 +38,8 @@ export type KeyCap = DeepMap<Modifiers, KeyCapKey>;
  * E.g. a layout lets us go from the Geometry of a 105-key keyboard to a US 105-key keyboard
  */
 export type KeyCaps = Map<KeyCode, KeyCap>;
+
+export type KeyEventLabels = Map<KeyEvent, Label>;
 
 /**
  * the representation of a physical key, containing a shape, key code, and the key's emitted when it is pressed
@@ -54,9 +56,11 @@ export type Keyboard = PhysicalKey[];
 export function makeKeyboard({
   keyCaps,
   geometry,
+  keyEventLabels,
 }: {
   keyCaps: KeyCaps;
   geometry: Geometry;
+  keyEventLabels?: KeyEventLabels;
 }): Keyboard {
   return geometry
     .map(virtualKey => {
