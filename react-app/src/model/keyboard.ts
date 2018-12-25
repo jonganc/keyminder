@@ -14,6 +14,7 @@ import {
   KeyCaps,
   VirtualKey,
   Keyboard,
+  PhysicalKey,
 } from './keyboard-layout';
 import { DeepMap, Label } from './types';
 
@@ -38,14 +39,14 @@ export type PartialKeyboardFullKeyBindings = DeepMap<
 /**
  * a keycap with bindings
  */
-export type PartialKeyboardKey = VirtualKey & {
+export type PhysicalKeyWiAccessibleBindings = PhysicalKey & {
   bindings: PartialKeyboardFullKeyBindings;
 };
 
 /**
- * A partial keyboard gives all keybindings immediately reachable from a particular state (i.e. a sequence of keys already pressed).
+ * All keybindings immediately accessible from a particular state (i.e. a sequence of keys already pressed).
  */
-export type PartialKeyboard = PartialKeyboardKey[];
+export type KeyboardWiAccessibleBindings = PhysicalKeyWiAccessibleBindings[];
 
 interface AccessibleBinding {
   binding: Binding;
@@ -93,4 +94,4 @@ export function makePartialKeyboard({
   keyboard: Keyboard;
   keyBindings: KeyBindings;
   keySequenceState: KeySequence;
-}): PartialKeyboard {}
+}): KeyboardWiAccessibleBindings {}

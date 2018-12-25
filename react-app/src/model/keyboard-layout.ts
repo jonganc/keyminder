@@ -39,6 +39,9 @@ export type KeyCap = DeepMap<Modifiers, KeyCapKey>;
  */
 export type KeyCaps = Map<KeyCode, KeyCap>;
 
+/**
+ * the representation of a physical key, containing a shape, key code, and the key's emitted when it is pressed
+ */
 export type PhysicalKey = VirtualKey & {
   keyCap: KeyCap;
 };
