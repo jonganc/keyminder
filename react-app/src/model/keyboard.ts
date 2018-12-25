@@ -28,16 +28,11 @@ export type PhysicalKeyBindings = DeepMap<
      */
     keyEventModifiers: Modifiers;
     /**
-     * the binding
-     */
-    /**
      * The binding for a set of `PhysicalKeyBindings` bindings.
      * A value of `null` means that the key is an incomplete part of a key-sequence
      */
-    binding: Binding;
+    binding: Binding | null;
     bindingLabel: Label;
-    keySequence: KeySequence;
-    remainingKeySequence: KeySequence;
   }
 >;
 
@@ -53,7 +48,6 @@ export type PhysicalKeyWiAccessibleBindings = VirtualKey & {
  */
 export type KeyboardWiAccessibleBindings = PhysicalKeyWiAccessibleBindings[];
 
-// this is used only for `getAccessibleBindings`
 interface AccessibleBinding {
   binding: Binding;
   keySequence: KeySequence;
