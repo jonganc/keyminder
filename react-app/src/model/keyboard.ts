@@ -28,11 +28,16 @@ export type PhysicalKeyBindings = DeepMap<
      */
     keyEventModifiers: Modifiers;
     /**
-     * The binding for a set of `PhysicalKeyBindings` bindings.
-     * A value of `null` means that the pressed key would be an incomplete part of a key-sequence
+     * the binding
      */
-    binding: Binding | null;
+    /**
+     * The binding for a set of `PhysicalKeyBindings` bindings.
+     * A value of `null` means that the key is an incomplete part of a key-sequence
+     */
+    binding: Binding;
     bindingLabel: Label;
+    keySequence: KeySequence;
+    remainingKeySequence: KeySequence;
   }
 >;
 
@@ -48,6 +53,7 @@ export type PhysicalKeyWiAccessibleBindings = VirtualKey & {
  */
 export type KeyboardWiAccessibleBindings = PhysicalKeyWiAccessibleBindings[];
 
+// this is used only for `getAccessibleBindings`
 interface AccessibleBinding {
   binding: Binding;
   keySequence: KeySequence;
@@ -57,7 +63,7 @@ interface AccessibleBinding {
 /**
  * return all bindings in `keybindings` accessible from the current key sequence pressed
  */
-function bindingsAccessbileFromKeySequenceState(
+function getAccessibleBindings(
   keyBindings: KeyBindings,
   keySequenceState: KeySequence,
 ): AccessibleBinding[] {
@@ -83,10 +89,10 @@ function bindingsAccessbileFromKeySequenceState(
 }
 
 /**
- * make a partial keyboard
+ * make a physical keyboard
  * @param keySequenceState The key sequence pressed so far
  */
-export function makePartialKeyboard({
+export function makePhysicalKeyWiAccessibleBindings({
   keyboard,
   keyBindings,
   keySequenceState,
@@ -94,4 +100,9 @@ export function makePartialKeyboard({
   keyboard: Keyboard;
   keyBindings: KeyBindings;
   keySequenceState: KeySequence;
-}): KeyboardWiAccessibleBindings {}
+}): KeyboardWiAccessibleBindings {
+  const accessibleBindings = getAccessibleBindings(
+    keyBindings,
+    keySequenceState,
+  );
+}
