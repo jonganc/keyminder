@@ -1,5 +1,4 @@
-import { Modifiers } from 'popper.js';
-import { KeyEvent } from './key-bindings';
+import { KeyEvent, KeyEventLabels, Modifiers } from './key-bindings';
 import { DeepMap, Label, Shape } from './types';
 
 /**
@@ -23,32 +22,28 @@ export interface VirtualKey {
 export type Geometry = VirtualKey[];
 
 /**
- * A mapping giving the meaning (in terms of a key) and appearance of a KeyCode being pressed with various modifers. I.e., a key-cap, that is, what is "printed" on the key and what it does when pressed.
- * Note that if a key-cap with a modifier maps to a key, that key will be produced without the modifier. E.g., the physical key 'A' on a US keyboard has the keymapping `[[[], 'a'], [['shift'], 'A']]`, which means that when Shift is held and the physical key is pressed, a ModdedKey of `{ key: 'A', modifiers: new Set() }` is generated, not  `{ key: 'a', modifiers: new Set('Shift') }` or `{ key: 'A', modifiers: new Set('Shift') }`
+ * A keyboard localization, i.e. a mapping giving the meaning and appearance of a KeyCode being pressed with various modifers. Thus, it is like a key-cap, that is, what is "printed" on the key and what it does when pressed.
  */
-export type KeyCap = DeepMap<Modifiers, KeyEvent>;
-
-/**
- * a mapping of KeyCode's to KeyCaps's, i.e. a keyboard localization
- * E.g. a layout lets us go from the Geometry of a 105-key keyboard to a US 105-key keyboard
- */
-export type KeyCaps = Map<KeyCode, KeyCap>;
+export type KeyCaps = Map<
+  KeyCode,
+  DeepMap<
+    Modifiers,
+    // Note that if some key-cap with certain modifier maps to a key event, that combination will produce the key event without the modifier. E.g., the physical key 'A' on a US keyboard has the keymapping `[[[], 'a'], [['shift'], 'A']]`, which means that when Shift is held and the physical key is pressed, a ModdedKey of `{ key: 'A', modifiers: new Set() }` is generated, not  `{ key: 'a', modifiers: new Set('Shift') }` or `{ key: 'A', modifiers: new Set('Shift') }`
+    KeyEvent
+  >
+>;
 
 export interface LabeledKeyCapEvent {
   keyEvent: KeyEvent;
   keyEventLabel: Label;
 }
 
-export type LabeledKeyCaps = DeepMap<Modifiers, LabeledKeyCapEvent>;
-
-export type KeyEventLabels = Map<KeyEvent, Label>;
-
 /**
  * the representation of a physical key, containing a shape, key code, and the key's emitted when it is pressed
  */
-export type PhysicalKey = VirtualKey & {
-  keyCap: LabeledKeyCaps;
-};
+export interface PhysicalKey extends VirtualKey {
+  keyCap: DeepMap<Modifiers, LabeledKeyCapEvent>;
+}
 
 /**
  * one specific keyboard, with the actual keys that are passed to programs on key presses

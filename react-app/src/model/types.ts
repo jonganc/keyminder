@@ -1,3 +1,4 @@
+import l_ from 'lodash';
 export type RawPoint = [number, number];
 
 /**
@@ -113,3 +114,17 @@ export type Omit<
   Obj extends object,
   ToOmit extends string | number | symbol
 > = Pick<Obj, Exclude<keyof Obj, ToOmit>>;
+
+// we do this by converting to arrays because I'm not sure we'll even use sets in the long run
+export function setDifference<T>(set1: Set<T>, set2: Set<T>): Set<T> {
+  return new Set<T>(l_.difference([...set1, ...set2]));
+}
+
+export function doSetsIntersect(set1: Set<any>, set2: Set<any>): boolean {
+  for (const from1 of set1) {
+    if (set2.has(from1)) {
+      return true;
+    }
+  }
+  return false;
+}

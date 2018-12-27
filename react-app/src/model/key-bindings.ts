@@ -9,6 +9,8 @@ import { DeepMap, Label } from './types';
 //
 export type KeyEvent = string;
 
+export type KeyEventLabels = Map<KeyEvent, Label>;
+
 export type Modifier =
   | 'Control'
   | 'Alt'
@@ -20,8 +22,8 @@ export type Modifier =
   | 'Hyper';
 
 export type Modifiers = Set<Modifier>;
-export function Modifiers(...args) {
-  return new Set(...args);
+export function Modifiers(modifiers: Modifier[]) {
+  return new Set(modifiers);
 }
 
 /**
@@ -58,14 +60,53 @@ export interface ModdedKeyEvent {
   modifiers: Modifiers;
 }
 
-export type KeySequence = ModdedKeyEvent[];
+export class KeyMap {
+  constructor(
+    public readonly bindings: DeepMap<ModdedKeyEvent, Binding>,
+    public readonly name?: string,
+  ) {}
+}
 
 export type Binding = string | KeyMap;
 
-export interface KeyMap {
-  name?: string;
-  bindings: DeepMap<KeySequence, Binding>;
+export class KeyMapByEvent {
+  constructor(
+    public readonly bindings: Map<KeyEvent, DeepMap<Modifiers, BindingByEvent>>,
+    public readonly name?: string,
+  ) {}
 }
 
-// we allow for bindings to be denoted by labels instead of the binding name
-export type BindingLabels = DeepMap<Binding, Label>;
+export type BindingByEvent = string | KeyMapByEvent;
+
+/**
+ * A way for bindings to be displayed via labels instead of the binding name
+ */
+export type BindingLabels = Map<string, Label>;
+
+export type KeySequence = ModdedKeyEvent[];
+
+export function makeKeyMapByEvent(keyMap: KeyMap): KeyMapByEvent {
+  const { name, bindings: fullBindings } = keyMap;
+  const fullBindingsByEvent = new Map<
+    KeyEvent,
+    DeepMap<Modifiers, BindingByEvent>
+  >([]);
+  fullBindings.forEach((binding, moddedKeyEvent) => {
+    const bindingByEvent =
+      typeof binding === 'string' ? binding : makeKeyMapByEvent(binding);
+
+    const bindingAndModifiersForEvent = fullBindingsByEvent.get(
+      moddedKeyEvent.keyEvent,
+    );
+    if (bindingAndModifiersForEvent === undefined) {
+      fullBindingsByEvent.set(
+        moddedKeyEvent.keyEvent,
+        new DeepMap([[moddedKeyEvent.modifiers, bindingByEvent]]),
+      );
+    } else {
+      bindingAndModifiersForEvent.set(moddedKeyEvent.modifiers, bindingByEvent);
+    }
+  });
+
+  return { name, bindings: fullBindingsByEvent };
+}

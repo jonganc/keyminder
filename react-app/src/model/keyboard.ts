@@ -1,45 +1,84 @@
 import l_ from 'lodash';
-import { Modifiers } from 'popper.js';
 import {
   Binding,
   BindingLabels,
   KeyMap,
   KeySequence,
   ModdedKeyEvent,
+  KeyMapByEvent,
+  Modifiers,
+  KeyEvent,
+  BindingByEvent,
 } from './key-bindings';
 import {
   Geometry,
-  KeyCap,
   LabeledKeyCapEvent,
-  KeyCaps,
   VirtualKey,
   Keyboard,
   PhysicalKey,
 } from './keyboard-layout';
-import { DeepMap, Label } from './types';
+import { DeepMap, Label, doSetsIntersect } from './types';
 
 // combine key bindings and layouts into keyboards
 
-export type PhysicalKeyBindings = DeepMap<
-  Modifiers,
-  LabeledKeyCapEvent & {
-    /**
-     * The physical-key modifiers might be transformed to produce the key-event modifiers, which is what is actually used to determine the bindings. Thus, we include the key-event modifiers for completeness. E.g. if we press Ctrl-Shift-A, the physical-key modifiers will be [Ctrl, Shift] but the key-event modifiers will just be [Ctrl].
-     */
-    keyEventModifiers: Modifiers;
-    binding: Binding;
-    bindingLabel: Label;
-  }
->;
+// we make this and PhysicalKeyBindingConflicting classes so that they can be distinguished easily
+class PhysicalKeyBindingSingle implements LabeledKeyCapEvent {
+  public readonly keyEvent!: KeyEvent;
+  public readonly keyEventLabel!: Label;
+  /**
+   * The physical-key modifiers might be transformed to produce the key-event modifiers, which is what is actually used to determine the bindings. Thus, we include the key-event modifiers for completeness. E.g. if we press Ctrl-Shift-A, the physical-key modifiers will be [Ctrl, Shift] but the key-event modifiers will just be [Ctrl].
+   */
+  public readonly keyEventModifiers!: Modifiers;
+  public readonly binding!: Binding;
+  public readonly bindingLabel!: Label;
 
-export type PhysicalKeyWiAccessibleBindings = VirtualKey & {
-  bindings: PhysicalKeyBindings;
-};
+  constructor(
+    vbls: {
+      [key in keyof PhysicalKeyBindingSingle]: PhysicalKeyBindingSingle[key]
+    },
+  ) {
+    Object.assign(this, vbls);
+  }
+}
+
+/**
+ * This corresponds to the case where multiple key bindings map to the key sequence. This can happen when there is no binding specifically for the modified key event but instead the binding is generated from modifiers added to two different events. For example, Shift-2 maps to `@`. Now imagine that Ctrl-2 were set to be translated to `!` and that Ctrl-@ mapped to a command 'Do-Ctrl-@' and 'Shift-!' mapped to 'Do-Shift-!'. Then the physical key press `Ctrl-Shift-2' would be bound to both 'Do-Ctrl-@' and 'Do-Shift-!'. In practice, this won't often occur, since only Shift and Alt-Gr translate keys usually. But... it's not beyond the realm of possiblity so we allow for it.
+ */
+class PhysicalKeyBindingConflicting {
+  public readonly keyEvent!: KeyEvent;
+  public readonly keyEventLabel!: Label;
+
+  public readonly keyEventModifiers!: Modifiers;
+  public readonly binding!: Binding;
+  public readonly bindingLabel!: Label;
+  constructor(
+    vbls: {
+      [key in keyof PhysicalKeyBindingSingle]: PhysicalKeyBindingSingle[key]
+    },
+  ) {
+    Object.assign(this, vbls);
+  }
+}
+
+interface PhysicalKeyBindingConflicting extends LabeledKeyCapEvent {
+  keyEventModifiers?: undefined;
+  binding?: undefined;
+  bindingLabel?: undefined;
+  conflicting?: PhysicalKeyBindingSingle[];
+}
+
+export type PhysicalKeyBinding =
+  | PhysicalKeyBindingSingle
+  | PhysicalKeyBindingConflicting;
+
+export interface PhysicalKeyWithBindings extends VirtualKey {
+  bindings: DeepMap<Modifiers, PhysicalKeyBinding>;
+}
 
 /**
  * All keybindings immediately accessible from a particular state (i.e. a sequence of keys already pressed).
  */
-export type KeyboardWiAccessibleBindings = PhysicalKeyWiAccessibleBindings[];
+export type KeyboardWithBindings = PhysicalKeyWithBindings[];
 
 /**
  * Search for `keySequence` in `keyMap`
@@ -81,18 +120,90 @@ function getAccessibleBindings(
 }
 
 /**
- * make a physical keyboard
- * @param keySequenceState The key sequence pressed so far
+ * Find bindings that can be reached from a physical key being pressed.
+ * Note that using modifiers to reach a key event means these modifiers can no longer modify the key event. For example, if we have a binding for Shift-@, this is inaccessible from a standard keyboard since reaching @ involves pressing Shift-2; there's no way to add a Shift on top of @.
+ * @returns An array with the bindings plus the full set of modifiers needed to reach the binding
  */
-export function makePhysicalKeyWiAccessibleBindings({
+function getAccessibleBindingsFromPhysicalKeyEvent(
+  keyEvent: KeyEvent,
+  physicalModifiers: Modifiers,
+  keyMapByEvent: KeyMapByEvent,
+): Array<{
+  binding: BindingByEvent;
+  fullPhysicalModifiers: Modifiers;
+  keyEventModifiers: Modifiers;
+}> {
+  const allBindingsForEvent = keyMapByEvent.bindings.get(keyEvent);
+  if (allBindingsForEvent === undefined) {
+    return [];
+  }
+  return [...allBindingsForEvent.entries()]
+    .map(([bindingModifiers, bindingsByEvent]) => {
+      if (doSetsIntersect(physicalModifiers, bindingModifiers)) {
+        return undefined;
+      } else {
+        return {
+          binding: bindingsByEvent,
+          fullPhysicalModifiers: new Set([
+            ...physicalModifiers,
+            ...bindingModifiers,
+          ]),
+          keyEventModifiers: bindingModifiers,
+        };
+      }
+    })
+    .filter((b => b !== undefined) as <T>(b: T | undefined) => b is T);
+}
+
+export function makeKeyboardWithBindings({
   keyboard,
-  keyBindings,
-  keySequenceState,
+  keyMapByEvent,
+  bindingLabels,
 }: {
   keyboard: Keyboard;
-  keyBindings: KeyMap;
-  keySequenceState: KeySequence;
-}): KeyboardWiAccessibleBindings {
+  keyMapByEvent: KeyMapByEvent;
+  bindingLabels: BindingLabels;
+}): KeyboardWithBindings {
+  keyboard.map(physicalKey => {
+    const { keyCap, ...virtualKey } = physicalKey;
+
+    const bindingPairs = [...keyCap.entries()].map(
+      ([physicalModifiers, labeledKeyCapEvent]) => {
+        const accessibleBindings = getAccessibleBindingsFromPhysicalKeyEvent(
+          labeledKeyCapEvent.keyEvent,
+          physicalModifiers,
+          keyMapByEvent,
+        );
+
+        return accessibleBindings.map(
+          ({ binding, fullPhysicalModifiers, keyEventModifiers }) => {
+            const bindingLabel =
+              binding instanceof KeyMapByEvent
+                ? // FIXME Ideally, this would be some React component, like () => (<div class="keymap-binding" />)... but I don't want this file to have to use TSX. Maybe I make some file with the React Code for this? Or I could allow an element of bindingLabels to be the symbol KeyMap or something and put the component there...
+                  'keymap placeholder'
+                : l_.defaultTo(bindingLabels.get(binding), binding);
+            return [
+              fullPhysicalModifiers,
+              {
+                ...labeledKeyCapEvent,
+                keyEventModifiers,
+                binding,
+                bindingLabel,
+              },
+            ] as [Modifiers, PhysicalKeyBinding];
+          },
+        );
+      },
+    );
+
+    return {
+      ...virtualKey,
+      bindings: [...keyCap.entries()].map(
+        ([modifiers, labeledKeyCapEvent]) => {},
+      ),
+    };
+  });
+
   const accessibleBindings = getAccessibleBindings(
     keyBindings,
     keySequenceState,

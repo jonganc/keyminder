@@ -42,7 +42,7 @@ export const geometry: Geometry = [
   },
 ];
 
-export const layout: KeyCaps = new Map([
+export const keyCaps: KeyCaps = new Map([
   ['AE01', new DeepMap([[Modifiers(), 'q'], [Modifiers(['Shift']), 'Q']])],
   ['AE02', new DeepMap([[Modifiers(), 'w'], [Modifiers(['Shift']), 'W']])],
   ['AE03', new DeepMap([[Modifiers(), 'e'], [Modifiers(['Shift']), 'E']])],
