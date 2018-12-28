@@ -1,7 +1,12 @@
 // a dummy keyboard for testing
 
 import { Modifier, Modifiers } from '../model/key-bindings';
-import { Geometry, KeyLabels, KeyCaps, Shape } from '../model/keyboard-layout';
+import {
+  Geometry,
+  KeyLabels,
+  LocalizedKeys,
+  Shape,
+} from '../model/keyboard-layout';
 import { DeepMap } from '../model/types';
 
 const basicKeyCapShape = Shape.fromRawShape([
@@ -42,7 +47,7 @@ export const geometry: Geometry = [
   },
 ];
 
-export const keyCaps: KeyCaps = new Map([
+export const keyCaps: LocalizedKeys = new Map([
   ['AE01', new DeepMap([[Modifiers(), 'q'], [Modifiers(['Shift']), 'Q']])],
   ['AE02', new DeepMap([[Modifiers(), 'w'], [Modifiers(['Shift']), 'W']])],
   ['AE03', new DeepMap([[Modifiers(), 'e'], [Modifiers(['Shift']), 'E']])],

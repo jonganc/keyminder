@@ -55,7 +55,7 @@ We use the same codes as in XWindows, which are all 4-letter strings, e.g. "TLDE
 
 [In text, we refer to a key code in quotes, e.g. "AE01"]
 
-### key event (KeyEvent)
+### key-event (KeyEvent)
 
 The most basic unit of a key sequence, e.g. "A" or "PageUp", and which can be modified with modifiers like "Shift" or "Control".
 
@@ -63,16 +63,23 @@ Key names match what would be in the KeyboardEvent.key property of a keyboard ev
 - for keys with a printed representation, the name is the Unicode representation of the printed key, e.g. 'a' or '@'
 - for non-printable keys, the names are given at https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values, e.g. "Alt", "NumLock"
 
+### key-event labels (KeyEventLabels)
+
+A mapping of key events to how they should be labeled.
+
 ### modifiers (Modifiers)
 
 A key that, when pressed, alter the effect of other keys, e.g. Shift, Control. Usually implemented as a set of strings.
 
 [In text, these are represented as unquoted, e.g. Shift or Shift-A. Thus, the key-event from pressing the Shift key would be "Shift", whereas pressing Shift plus the A key would be represented Shift-A. We generally adopt the ordering Control-Alt-Win-Meta-Hyper-Shift-...]
 
-### key cap (KeyCap...)
+### localized keys (LocalizedKeys...)
 
-A particular key code plus modifiers which maps to a particular key event. So-called because it corresponds 
+A keyboard localization, i.e. a mapping giving the meaning of a KeyCode being pressed with a given set of modifers. Combined with key-event labels, these correspond to a physical keyboard's key cap, that is, what each key press does and what is printed on the key.
 
+### key-cap (KeyCap)
+
+The representation of a key-cap, that is, something that, when bound to a key code, specifies what key-events occur when the key is pressed with different bindings and what those key events are represented as
 
 ### physical key (PhysicalKey)
 

@@ -16,28 +16,23 @@ export interface VirtualKey {
  */
 export type Geometry = VirtualKey[];
 
-/**
- * A keyboard localization, i.e. a mapping giving the meaning and appearance of a KeyCode being pressed with various modifers. Thus, it is like a key-cap, that is, what is "printed" on the key and what it does when pressed.
- */
-export type KeyCaps = Map<
-  KeyCode,
-  DeepMap<
-    Modifiers,
-    // Note that if some key-cap with certain modifier maps to a key event, that combination will produce the key event without the modifier. E.g., the physical key 'A' on a US keyboard has the keymapping `[[[], 'a'], [['shift'], 'A']]`, which means that when Shift is held and the physical key is pressed, a ModdedKey of `{ key: 'A', modifiers: new Set() }` is generated, not  `{ key: 'a', modifiers: new Set('Shift') }` or `{ key: 'A', modifiers: new Set('Shift') }`
-    KeyEvent
-  >
->;
-
 export interface LabeledKeyEvent {
   keyEvent: KeyEvent;
   keyEventLabel: Label;
 }
 
 /**
+ * A keyboard localization, i.e. a mapping giving the meaning and appearance of a KeyCode being pressed with various modifers. Thus, it is like a key-cap, that is, what is "printed" on the key and what it does when pressed.
+ */
+export type LocalizedKeys = Map<KeyCode, DeepMap<Modifiers, KeyEvent>>;
+
+export type KeyCap = DeepMap<Modifiers, LabeledKeyEvent>;
+
+/**
  * the representation of a physical key, containing a shape, key code, and the key's emitted when it is pressed
  */
 export interface PhysicalKey extends VirtualKey {
-  keyCap: DeepMap<Modifiers, LabeledKeyEvent>;
+  keyCap: KeyCap;
 }
 
 /**
@@ -46,11 +41,11 @@ export interface PhysicalKey extends VirtualKey {
 export type Keyboard = PhysicalKey[];
 
 export function makeKeyboard({
-  keyCaps,
+  localizedKeys,
   geometry,
   keyEventLabels,
 }: {
-  keyCaps: KeyCaps;
+  localizedKeys: LocalizedKeys;
   geometry: Geometry;
   keyEventLabels?: KeyEventLabels;
 }): Keyboard {

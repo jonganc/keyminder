@@ -30,15 +30,19 @@ interface PhysicalKeyBindingSingle extends LabeledKeyEvent {
   bindingLabel: Label;
 }
 
-/**
- * This corresponds to the case where multiple key bindings map to the key sequence. This can happen when there is no binding specifically for the modified key event but instead the binding is generated from modifiers added to two different events. For example, Shift-2 maps to `@`. Now imagine that Ctrl-2 were set to be translated to `!` and that Ctrl-@ mapped to a command 'Do-Ctrl-@' and 'Shift-!' mapped to 'Do-Shift-!'. Then the physical key press `Ctrl-Shift-2' would be bound to both 'Do-Ctrl-@' and 'Do-Shift-!'. In practice, this won't often occur, since only Shift and Alt-Gr translate keys usually. But... it's not beyond the realm of possiblity so we allow for it.
- */
+// This corresponds to the case where multiple key bindings map to the key sequence. This can happen when there is no binding specifically for the modified key event but instead the binding is generated from modifiers added to two different events. For example, Shift-2 maps to `@`. Now imagine that Ctrl-2 were set to be translated to `!` and that Ctrl-@ mapped to a command 'Do-Ctrl-@' and 'Shift-!' mapped to 'Do-Shift-!'. Then the physical key press `Ctrl-Shift-2' would be bound to both 'Do-Ctrl-@' and 'Do-Shift-!'. In practice, this won't often occur, since only Shift and Alt-Gr translate keys usually. But... it's not beyond the realm of possiblity so we allow for it.
 type PhysicalKeyBindingConflicting = PhysicalKeyBindingSingle[];
 
+/**
+ * A physical-key-binding specifies what could happen when a physical key is pressed with a set of bindings (including if any modifiers are )
+ */
 export type PhysicalKeyBinding =
   | PhysicalKeyBindingSingle
   | PhysicalKeyBindingConflicting;
 
+/**
+ * A physical-key-with-bindings is a physical-key along with the bindings for any set of modifiers for which a binding is defined.
+ */
 export interface PhysicalKeyWithBindings extends VirtualKey {
   bindings: DeepMap<Modifiers, PhysicalKeyBinding>;
 }
@@ -92,9 +96,9 @@ function mapKeyEventPlusModifiersToBindings(
 }
 
 /**
- * Given a key event, find accessible physical key bindings
+ * Given a key cap, find the accessible physical key bindings, i.e. all key bindings which can be reached via different modifiers
  */
-function mapKeyEventsToAccessiblePhysicalKeyBindings() {}
+function mapKeyCapToPhysicalKeyBindings(keyCap: KeyCap): {};
 
 export function makeKeyboardWithBindings({
   keyboard,
