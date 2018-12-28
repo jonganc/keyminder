@@ -21,51 +21,19 @@ import { DeepMap, Label, doSetsIntersect } from './types';
 
 // combine key bindings and layouts into keyboards
 
-// we make this and PhysicalKeyBindingConflicting classes so that they can be distinguished easily
-class PhysicalKeyBindingSingle implements LabeledKeyCapEvent {
-  public readonly keyEvent!: KeyEvent;
-  public readonly keyEventLabel!: Label;
+interface PhysicalKeyBindingSingle extends LabeledKeyCapEvent {
   /**
    * The physical-key modifiers might be transformed to produce the key-event modifiers, which is what is actually used to determine the bindings. Thus, we include the key-event modifiers for completeness. E.g. if we press Ctrl-Shift-A, the physical-key modifiers will be [Ctrl, Shift] but the key-event modifiers will just be [Ctrl].
    */
-  public readonly keyEventModifiers!: Modifiers;
-  public readonly binding!: Binding;
-  public readonly bindingLabel!: Label;
-
-  constructor(
-    vbls: {
-      [key in keyof PhysicalKeyBindingSingle]: PhysicalKeyBindingSingle[key]
-    },
-  ) {
-    Object.assign(this, vbls);
-  }
+  keyEventModifiers: Modifiers;
+  binding: Binding;
+  bindingLabel: Label;
 }
 
 /**
  * This corresponds to the case where multiple key bindings map to the key sequence. This can happen when there is no binding specifically for the modified key event but instead the binding is generated from modifiers added to two different events. For example, Shift-2 maps to `@`. Now imagine that Ctrl-2 were set to be translated to `!` and that Ctrl-@ mapped to a command 'Do-Ctrl-@' and 'Shift-!' mapped to 'Do-Shift-!'. Then the physical key press `Ctrl-Shift-2' would be bound to both 'Do-Ctrl-@' and 'Do-Shift-!'. In practice, this won't often occur, since only Shift and Alt-Gr translate keys usually. But... it's not beyond the realm of possiblity so we allow for it.
  */
-class PhysicalKeyBindingConflicting {
-  public readonly keyEvent!: KeyEvent;
-  public readonly keyEventLabel!: Label;
-
-  public readonly keyEventModifiers!: Modifiers;
-  public readonly binding!: Binding;
-  public readonly bindingLabel!: Label;
-  constructor(
-    vbls: {
-      [key in keyof PhysicalKeyBindingSingle]: PhysicalKeyBindingSingle[key]
-    },
-  ) {
-    Object.assign(this, vbls);
-  }
-}
-
-interface PhysicalKeyBindingConflicting extends LabeledKeyCapEvent {
-  keyEventModifiers?: undefined;
-  binding?: undefined;
-  bindingLabel?: undefined;
-  conflicting?: PhysicalKeyBindingSingle[];
-}
+type PhysicalKeyBindingConflicting = PhysicalKeyBindingSingle[];
 
 export type PhysicalKeyBinding =
   | PhysicalKeyBindingSingle
@@ -79,15 +47,6 @@ export interface PhysicalKeyWithBindings extends VirtualKey {
  * All keybindings immediately accessible from a particular state (i.e. a sequence of keys already pressed).
  */
 export type KeyboardWithBindings = PhysicalKeyWithBindings[];
-
-/**
- * Search for `keySequence` in `keyMap`
- * @returns If binding is not found
- */
-function scanKeyMapForKeySequence(
-  keyMap: KeyMap,
-  keySequence: KeySequence,
-): { binding: Binding; remainingKeySequence: KeySequence } | undefined {}
 
 /**
  * return all bindings in `keybindings` accessible from the current key sequence pressed
@@ -120,10 +79,13 @@ function getAccessibleBindings(
 }
 
 /**
- * Find bindings that can be reached from a physical key being pressed.
- * Note that using modifiers to reach a key event means these modifiers can no longer modify the key event. For example, if we have a binding for Shift-@, this is inaccessible from a standard keyboard since reaching @ involves pressing Shift-2; there's no way to add a Shift on top of @.
+ * Find bindings that could be reached from a physical key being pressed
+ * @param keyEvent The key event to consider
+ * @param physicalModifiers The modifiers used to reach the key event. As noted in the comment below, this limits the bindings to those which don't use these modifiers
+ * @param keyMapByEvent The keymap to scan
  * @returns An array with the bindings plus the full set of modifiers needed to reach the binding
  */
+// Note that using modifiers to reach a key event means these modifiers can no longer modify the key event. For example, if we have a binding for Shift-@, this is inaccessible since reaching @ involves pressing Shift-2; there's no way to add a Shift on top of @.
 function getAccessibleBindingsFromPhysicalKeyEvent(
   keyEvent: KeyEvent,
   physicalModifiers: Modifiers,
