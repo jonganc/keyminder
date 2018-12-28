@@ -49,46 +49,17 @@ export interface PhysicalKeyWithBindings extends VirtualKey {
 export type KeyboardWithBindings = PhysicalKeyWithBindings[];
 
 /**
- * return all bindings in `keybindings` accessible from the current key sequence pressed
- */
-function getAccessibleBindings(
-  keyMap: KeyMap,
-  keySequenceState: KeySequence,
-): Array<{
-  binding: Binding;
-  keySequence: KeySequence;
-  remainingKeySequence: KeySequence;
-}> {
-  return [...keyMap.bindings.entries()]
-    .map(([keySequence, binding]) => {
-      if (
-        l_.isEqual(
-          keySequence.slice(0, keySequenceState.length),
-          keySequenceState,
-        )
-      ) {
-        return {
-          binding,
-          keySequence,
-          remainingKeySequence: keySequence.slice(keySequenceState.length),
-        };
-      }
-      return undefined;
-    })
-    .filter((b => b !== undefined) as <T>(b: T | undefined) => b is T);
-}
-
-/**
- * Find bindings that could be reached from a physical key being pressed
+ * Find the key bindings for a key-event with particular modifiers.
  * @param keyEvent The key event to consider
- * @param physicalModifiers The modifiers used to reach the key event. As noted in the comment below, this limits the bindings to those which don't use these modifiers
+ * @param modifiers The modifiers used to reach the key event
  * @param keyMapByEvent The keymap to scan
- * @returns An array with the bindings plus the full set of modifiers needed to reach the binding
+ * @returns An array with the bindings plus the full set of physical modifiers needed to reach the binding. As noted in `PhysicalKeyBindingConflicting`, there could be multiple bindings reachable.
  */
+// Note that bindings which use the this limits the bindings to those which don't use these modifiers
 // Note that using modifiers to reach a key event means these modifiers can no longer modify the key event. For example, if we have a binding for Shift-@, this is inaccessible since reaching @ involves pressing Shift-2; there's no way to add a Shift on top of @.
-function getAccessibleBindingsFromPhysicalKeyEvent(
+function findBindingsForEvent(
   keyEvent: KeyEvent,
-  physicalModifiers: Modifiers,
+  modifiers: Modifiers,
   keyMapByEvent: KeyMapByEvent,
 ): Array<{
   binding: BindingByEvent;
@@ -101,15 +72,12 @@ function getAccessibleBindingsFromPhysicalKeyEvent(
   }
   return [...allBindingsForEvent.entries()]
     .map(([bindingModifiers, bindingsByEvent]) => {
-      if (doSetsIntersect(physicalModifiers, bindingModifiers)) {
+      if (doSetsIntersect(modifiers, bindingModifiers)) {
         return undefined;
       } else {
         return {
           binding: bindingsByEvent,
-          fullPhysicalModifiers: new Set([
-            ...physicalModifiers,
-            ...bindingModifiers,
-          ]),
+          fullPhysicalModifiers: new Set([...modifiers, ...bindingModifiers]),
           keyEventModifiers: bindingModifiers,
         };
       }
@@ -131,7 +99,7 @@ export function makeKeyboardWithBindings({
 
     const bindingPairs = [...keyCap.entries()].map(
       ([physicalModifiers, labeledKeyCapEvent]) => {
-        const accessibleBindings = getAccessibleBindingsFromPhysicalKeyEvent(
+        const accessibleBindings = findBindingsForEvent(
           labeledKeyCapEvent.keyEvent,
           physicalModifiers,
           keyMapByEvent,
@@ -166,7 +134,7 @@ export function makeKeyboardWithBindings({
     };
   });
 
-  const accessibleBindings = getAccessibleBindings(
+  const accessibleBindings = findBindingsForEvent(
     keyBindings,
     keySequenceState,
   );
