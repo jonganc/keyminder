@@ -1,11 +1,6 @@
 import { KeyEvent, KeyEventLabels, Modifiers } from './key-bindings';
 import { DeepMap, Label, Shape } from './types';
 
-/**
- * a code that corresponds to a particular physical location on a keyboard, without specifying what that location actually represents.
- * we use the same codes as in XWindows, which are all 4-letter strings, e.g. "TLDE" for (the standard location of) the '~' character, "AE01" for the '1' key, "AD01" for the 'q' key
- * for example, /usr/share/X11/xkb/geometry/pc on Ubuntu 18.04 gives the keycodes of the keys
- */
 export type KeyCode = string;
 
 /**
@@ -33,7 +28,7 @@ export type KeyCaps = Map<
   >
 >;
 
-export interface LabeledKeyCapEvent {
+export interface LabeledKeyEvent {
   keyEvent: KeyEvent;
   keyEventLabel: Label;
 }
@@ -42,7 +37,7 @@ export interface LabeledKeyCapEvent {
  * the representation of a physical key, containing a shape, key code, and the key's emitted when it is pressed
  */
 export interface PhysicalKey extends VirtualKey {
-  keyCap: DeepMap<Modifiers, LabeledKeyCapEvent>;
+  keyCap: DeepMap<Modifiers, LabeledKeyEvent>;
 }
 
 /**
@@ -76,12 +71,12 @@ export function makeKeyboard({
           if (keyEventLabel === undefined) {
             return [modifiers, { keyEvent, keyEventLabel: keyEvent }] as [
               Modifiers,
-              LabeledKeyCapEvent
+              LabeledKeyEvent
             ];
           }
           return [modifiers, { keyEvent, keyEventLabel }] as [
             Modifiers,
-            LabeledKeyCapEvent
+            LabeledKeyEvent
           ];
         },
       );
