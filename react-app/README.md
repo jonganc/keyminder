@@ -43,7 +43,7 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 
 To learn React, check out the [React documentation](https://reactjs.org/).
 
-## Commonly used terms (interface/class name)
+## Terms for users (interface/class name)
 
 ### key code (KeyCode)
 
@@ -73,9 +73,25 @@ A key that, when pressed, alter the effect of other keys, e.g. Shift, Control. U
 
 [In text, these are represented as unquoted, e.g. Shift or Shift-A. Thus, the key-event from pressing the Shift key would be "Shift", whereas pressing Shift plus the A key would be represented Shift-A. We generally adopt the ordering Control-Alt-Win-Meta-Hyper-Shift-...]
 
-### localized keys (LocalizedKeys...)
+### key layout (KeyLayout)
 
 A keyboard localization, i.e. a mapping giving the meaning of a KeyCode being pressed with a given set of modifers. Combined with key-event labels, these correspond to a physical keyboard's key cap, that is, what each key press does and what is printed on the key.
+
+### modified key-event (ModdedKeyEvent)
+
+A particular key pressed along with any modifiers, e.g. "2" pressed along with Control+Shift.
+
+[In text, denoted unquoted, e.g. Shift-2]
+
+### binding (Binding)
+
+What a key press "does". Can be a string, indicating some command, or a keymap
+
+### key map (KeyMap)
+
+A mapping from key events (modified key-events, actually) to bindings
+
+## terms for developers
 
 ### key-cap (KeyCap)
 
@@ -87,12 +103,6 @@ The representation of a physical key on a keyboard, which includes
 - the key-code represented by the key
 - the shape of the key
 - the key events reachable via the key, which is a map which takes a set of modifiers to a key-event along with a label
-
-### physical key press (FIX: Is this needed?)
-
-A particular key pressed along with any modifiers, e.g. "2" pressed along with Control+Shift.
-
-[In text, denoted unquoted, e.g. Shift-2]
 
 ## physical key binding (PhysicalKeyBinding...)
 

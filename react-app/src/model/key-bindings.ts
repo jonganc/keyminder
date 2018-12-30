@@ -46,25 +46,14 @@ export const modifierDisplays: {
   Hyper: { display: 'H', order: 70 },
 };
 
-/**
- * a key with appropriate modifiers
- */
 export interface ModdedKeyEvent {
-  /**
-   * the key on the keyboard
-   */
   keyEvent: KeyEvent;
-  /**
-   * the modifiers applied to the key
-   */
   modifiers: Modifiers;
 }
 
-export class KeyMap {
-  constructor(
-    public readonly bindings: DeepMap<ModdedKeyEvent, Binding>,
-    public readonly name?: string,
-  ) {}
+export interface KeyMap {
+  bindings: DeepMap<ModdedKeyEvent, Binding>;
+  name?: string;
 }
 
 export type Binding = string | KeyMap;

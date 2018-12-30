@@ -32,8 +32,18 @@ export class Shape {
   }
 }
 
-function notImplementedYet(..._: any[]) {
+function notImplementedYet(..._: any[]): Error {
   throw new Error('Not implemented yet');
+}
+
+/**
+ * Like lodash's groupBy except that it groups using pairwise lodash's isEqual
+ */
+export function groupByDeep<T, U>(
+  arr: T[],
+  grouper: (val: T) => U,
+): [[U, [T, ...T[]]]] {
+  throw notImplementedYet(arr, grouper);
 }
 
 /**
@@ -47,8 +57,7 @@ export class DeepMap<K, V> {
   }
 
   delete(key: K): boolean {
-    notImplementedYet(key);
-    return false;
+    throw notImplementedYet(key);
   }
 
   forEach(
@@ -59,18 +68,15 @@ export class DeepMap<K, V> {
   }
 
   get(key: K): V | undefined {
-    notImplementedYet(key);
-    return undefined;
+    throw notImplementedYet(key);
   }
 
   has(key: K): boolean {
-    notImplementedYet(key);
-    return false;
+    throw notImplementedYet(key);
   }
 
   set(key: K, value: V): this {
-    notImplementedYet(key, value);
-    return this;
+    throw notImplementedYet(key, value);
   }
 
   get size(): number {
@@ -79,32 +85,28 @@ export class DeepMap<K, V> {
 
   /** Returns an iterable of entries in the map. */
   [Symbol.iterator](): IterableIterator<[K, V]> {
-    notImplementedYet();
-    return [][Symbol.iterator]();
+    throw notImplementedYet();
   }
 
   /**
    * Returns an iterable of key, value pairs for every entry in the map.
    */
   entries(): IterableIterator<[K, V]> {
-    notImplementedYet();
-    return [][Symbol.iterator]();
+    throw notImplementedYet();
   }
 
   /**
    * Returns an iterable of keys in the map
    */
   keys(): IterableIterator<K> {
-    notImplementedYet();
-    return [][Symbol.iterator]();
+    throw notImplementedYet();
   }
 
   /**
    * Returns an iterable of values in the map
    */
   values(): IterableIterator<V> {
-    notImplementedYet();
-    return [][Symbol.iterator]();
+    throw notImplementedYet();
   }
 }
 

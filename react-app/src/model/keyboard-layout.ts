@@ -1,5 +1,6 @@
+import l_ from 'lodash';
 import { KeyEvent, KeyEventLabels, Modifiers } from './key-bindings';
-import { DeepMap, Label, Shape } from './types';
+import { DeepMap, Label, Shape, RawPoint } from './types';
 
 export type KeyCode = string;
 
@@ -21,40 +22,43 @@ export interface LabeledKeyEvent {
   keyEventLabel: Label;
 }
 
-/**
- * A keyboard localization, i.e. a mapping giving the meaning and appearance of a KeyCode being pressed with various modifers. Thus, it is like a key-cap, that is, what is "printed" on the key and what it does when pressed.
- */
-export type LocalizedKeys = Map<KeyCode, DeepMap<Modifiers, KeyEvent>>;
+export type Layout = Map<KeyCode, DeepMap<Modifiers, KeyEvent>>;
 
 export type KeyCap = DeepMap<Modifiers, LabeledKeyEvent>;
 
 /**
  * the representation of a physical key, containing a shape, key code, and the key's emitted when it is pressed
  */
-export interface PhysicalKey extends VirtualKey {
+interface PhysicalKey extends VirtualKey {
   keyCap: KeyCap;
 }
+
+export type Dimensions = RawPoint;
 
 /**
  * one specific keyboard, with the actual keys that are passed to programs on key presses
  */
-export type Keyboard = PhysicalKey[];
+// mainly an internal representation
+export interface Keyboard {
+  dimensions: Dimensions;
+  keys: PhysicalKey[];
+}
 
-export function makeKeyboard({
-  localizedKeys,
+function makeKeyboardKeys({
   geometry,
+  layout,
   keyEventLabels,
 }: {
-  localizedKeys: LocalizedKeys;
   geometry: Geometry;
+  layout: Layout;
   keyEventLabels?: KeyEventLabels;
-}): Keyboard {
+}): PhysicalKey[] {
   const theKeyEventLabels =
     keyEventLabels === undefined ? new Map() : keyEventLabels;
 
   return geometry
     .map(virtualKey => {
-      const keyCap = keyCaps.get(virtualKey.keyCode);
+      const keyCap = layout.get(virtualKey.keyCode);
 
       if (keyCap === undefined) {
         return undefined;
@@ -81,4 +85,43 @@ export function makeKeyboard({
     .filter((vk => vk !== undefined) as (
       val: PhysicalKey | undefined,
     ) => val is PhysicalKey);
+}
+
+function getAllOfOneCoordFromGeometry(
+  geometry: Geometry,
+  coord: 0 | 1,
+): number[] {
+  return l_.flatMap(geometry, virtualKey =>
+    virtualKey.shape.points.map(p => p.coords[coord]),
+  );
+}
+
+function getDimensions(geometry: Geometry): Dimensions {
+  return [
+    Math.max(...getAllOfOneCoordFromGeometry(geometry, 0)),
+    Math.max(...getAllOfOneCoordFromGeometry(geometry, 1)),
+  ];
+}
+
+export function makeKeyboard({
+  geometry,
+  layout,
+  keyEventLabels,
+}: {
+  geometry: Geometry;
+  layout: Layout;
+  keyEventLabels?: KeyEventLabels;
+}): Keyboard {
+  const keys = makeKeyboardKeys({
+    geometry,
+    layout,
+    keyEventLabels,
+  });
+
+  const dimensions = getDimensions(geometry);
+
+  return {
+    dimensions,
+    keys,
+  };
 }
