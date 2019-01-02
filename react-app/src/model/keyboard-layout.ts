@@ -1,15 +1,10 @@
 import l_ from 'lodash';
 import { KeyEvent, KeyEventLabels, Modifiers } from './key-bindings';
-import { DeepMap, Label, RawPoint } from './types';
+import { DeepMap, Label, RawPoint, Rectangle } from './types';
 
 export type KeyCode = string;
 
 export type Point = [number, number];
-
-/**
- * a rectangle is defined by its two corners
- */
-export type Rectangle = [Point, Point];
 
 /**
  * a virtual key, representing the size and location of a physical key and which keycode it represents
@@ -60,7 +55,7 @@ function getAllOfOneCoordFromGeometry(
   coord: 0 | 1,
 ): number[] {
   return l_.flatMap(geometry, virtualKey =>
-    virtualKey.shape.map(p => p[coord]),
+    virtualKey.shape.points.map(p => p.coords[coord]),
   );
 }
 
@@ -79,10 +74,7 @@ function makeGeometryWithRelativeDimensions(
 
   return geometry.map(vk => ({
     ...vk,
-    relativeShape: vk.shape.map(point => [
-      point[0] * scaleFactors[0],
-      point[1] * scaleFactors[1],
-    ]) as Rectangle,
+    relativeShape: vk.shape.scale(scaleFactors[0], scaleFactors[1]),
   }));
 }
 

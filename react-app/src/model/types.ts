@@ -21,33 +21,36 @@ export class Point {
   }
 }
 
-export type RawRectangle = [Point, Point];
+export type RawRectangle = [RawPoint, RawPoint];
+
+export type RectanglePoints = [Point, Point];
 
 /**
  * a 2-D shape
  */
-export class Shape<ShapePoints extends Point[]> {
-  static fromRawShape<RawShape extends RawPoint[]>(rawShape: RawShape) {
-    type TheShapePoints = { [key in keyof RawShape]: Point };
-    return new Shape<TheShapePoints>(rawShape.map(
+export class Rectangle {
+  static fromRawRectangle(rawRectangle: RawRectangle) {
+    return new Rectangle(rawRectangle.map(
       rp => new Point(rp),
-    ) as TheShapePoints);
+    ) as RectanglePoints);
   }
 
-  constructor(public readonly points: ShapePoints) {}
+  constructor(public readonly points: RectanglePoints) {}
 
-  translate(x: number, y: number): Shape<ShapePoints> {
-    return new Shape(this.points.map(p => p.translate(x, y)) as ShapePoints);
+  translate(x: number, y: number): Rectangle {
+    return new Rectangle(this.points.map(p =>
+      p.translate(x, y),
+    ) as RectanglePoints);
   }
 
-  scale(r: number): Shape<ShapePoints>;
+  scale(r: number): Rectangle;
   // tslint:disable-next-line:unified-signatures
-  scale(x: number, y: number): Shape<ShapePoints>;
-  scale(rOrX: number, y?: number): Shape<ShapePoints> {
+  scale(x: number, y: number): Rectangle;
+  scale(rOrX: number, y?: number): Rectangle {
     const [xFactor, yFactor] = y === undefined ? [rOrX, rOrX] : [rOrX, y];
-    return new Shape(this.points.map(p =>
+    return new Rectangle(this.points.map(p =>
       p.scale(xFactor, yFactor),
-    ) as ShapePoints);
+    ) as RectanglePoints);
   }
 }
 

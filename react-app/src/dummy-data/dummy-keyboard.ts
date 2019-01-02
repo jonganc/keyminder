@@ -1,15 +1,10 @@
 // a dummy keyboard for testing
 
 import { KeyEventLabels, Modifiers } from '../model/key-bindings';
-import { Geometry, Layout, Rectangle } from '../model/keyboard-layout';
-import { DeepMap } from '../model/types';
+import { Geometry, Layout } from '../model/keyboard-layout';
+import { DeepMap, Rectangle } from '../model/types';
 
-const basicKeyCapShape = Shape.fromRawShape([
-  [0, 0],
-  [20, 0],
-  [20, 20],
-  [0, 20],
-]);
+const basicKeyCapShape = Rectangle.fromRawRectangle([[0, 0], [20, 20]]);
 
 export const geometry: Geometry = [
   {
