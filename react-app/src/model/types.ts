@@ -29,18 +29,16 @@ export type RectanglePoints = [Point, Point];
  * a 2-D shape
  */
 export class Rectangle {
-  static fromRawRectangle(rawRectangle: RawRectangle) {
-    return new Rectangle(rawRectangle.map(
-      rp => new Point(rp),
-    ) as RectanglePoints);
+  public readonly points: RectanglePoints;
+
+  constructor(rawRectangle: RawRectangle) {
+    this.points = rawRectangle.map(rp => new Point(rp)) as RectanglePoints;
   }
 
-  constructor(public readonly points: RectanglePoints) {}
-
   translate(x: number, y: number): Rectangle {
-    return new Rectangle(this.points.map(p =>
-      p.translate(x, y),
-    ) as RectanglePoints);
+    return new Rectangle(this.points.map(
+      p => p.translate(x, y).coords,
+    ) as RawRectangle);
   }
 
   scale(r: number): Rectangle;
@@ -48,9 +46,9 @@ export class Rectangle {
   scale(x: number, y: number): Rectangle;
   scale(rOrX: number, y?: number): Rectangle {
     const [xFactor, yFactor] = y === undefined ? [rOrX, rOrX] : [rOrX, y];
-    return new Rectangle(this.points.map(p =>
-      p.scale(xFactor, yFactor),
-    ) as RectanglePoints);
+    return new Rectangle(this.points.map(
+      p => p.scale(xFactor, yFactor).coords,
+    ) as RawRectangle);
   }
 }
 

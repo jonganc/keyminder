@@ -20,5 +20,8 @@ describe('Point', () => {
 });
 
 describe('Rectangle', () => {
-  const rectangle = new Rectangle();
+  const rectangle = new Rectangle([[1, 2], [5, 4]]);
+  it('should make a rectangle', () => {
+    expect(re);
+  });
 });
