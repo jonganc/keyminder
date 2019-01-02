@@ -22,7 +22,7 @@ export type Modifier =
   | 'Hyper';
 
 export type Modifiers = Set<Modifier>;
-export function Modifiers(modifiers: Modifier[]) {
+export function Modifiers(modifiers?: Modifier[]) {
   return new Set(modifiers);
 }
 

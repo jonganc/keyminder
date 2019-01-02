@@ -1,15 +1,22 @@
 import l_ from 'lodash';
 import { KeyEvent, KeyEventLabels, Modifiers } from './key-bindings';
-import { DeepMap, Label, RawPoint, Shape } from './types';
+import { DeepMap, Label, RawPoint } from './types';
 
 export type KeyCode = string;
+
+export type Point = [number, number];
+
+/**
+ * a rectangle is defined by its two corners
+ */
+export type Rectangle = [Point, Point];
 
 /**
  * a virtual key, representing the size and location of a physical key and which keycode it represents
  */
 export interface VirtualKey {
   keyCode: KeyCode;
-  shape: Shape;
+  shape: Rectangle;
 }
 
 /**
@@ -27,14 +34,10 @@ export type Layout = Map<KeyCode, DeepMap<Modifiers, KeyEvent>>;
 export type KeyCap = DeepMap<Modifiers, LabeledKeyEvent>;
 
 /**
- * For purposes of displaying the key, we convert contains the shape to units out of 1 (i.e. 0.3 is 30% of full width or height) and find an appropriate bounding box for text
+ * For purposes of displaying the key, we convert the shape to units out of 1 (i.e. 0.3 is 30% of full width or height) and find an appropriate bounding box for text
  */
 export interface VirtualKeyWithProcessedShape extends VirtualKey {
-  relativeShape: Shape;
-  /**
-   * the Shape of a text box completely contained within shape.
-   */
-  relativeTextBox: Shape;
+  relativeShape: Rectangle;
 }
 
 type GeometryWithRelativeShapes = VirtualKeyWithProcessedShape[];
@@ -57,7 +60,7 @@ function getAllOfOneCoordFromGeometry(
   coord: 0 | 1,
 ): number[] {
   return l_.flatMap(geometry, virtualKey =>
-    virtualKey.shape.points.map(p => p.coords[coord]),
+    virtualKey.shape.map(p => p[coord]),
   );
 }
 
@@ -76,7 +79,10 @@ function makeGeometryWithRelativeDimensions(
 
   return geometry.map(vk => ({
     ...vk,
-    relativeShape: vk.shape.scale(scaleFactors[0], scaleFactors[1]),
+    relativeShape: vk.shape.map(point => [
+      point[0] * scaleFactors[0],
+      point[1] * scaleFactors[1],
+    ]) as Rectangle,
   }));
 }
 

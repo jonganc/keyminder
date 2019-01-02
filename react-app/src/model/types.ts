@@ -1,4 +1,5 @@
 import l_ from 'lodash';
+
 export type RawPoint = [number, number];
 
 /**
@@ -20,29 +21,29 @@ export class Point {
   }
 }
 
-export type RawShape = [RawPoint, RawPoint, RawPoint, ...RawPoint[]];
-
-type ShapePoints = [Point, Point, Point, ...Point[]];
+export type RawRectangle = [Point, Point];
 
 /**
- * the shape of a keyboard key
- * Being a non-flat 2-dimensional objects, it needs at least three points
+ * a 2-D shape
  */
-export class Shape {
-  static fromRawShape(rawShape: RawShape) {
-    return new Shape(rawShape.map(rp => new Point(rp)) as ShapePoints);
+export class Shape<ShapePoints extends Point[]> {
+  static fromRawShape<RawShape extends RawPoint[]>(rawShape: RawShape) {
+    type TheShapePoints = { [key in keyof RawShape]: Point };
+    return new Shape<TheShapePoints>(rawShape.map(
+      rp => new Point(rp),
+    ) as TheShapePoints);
   }
 
   constructor(public readonly points: ShapePoints) {}
 
-  translate(x: number, y: number): Shape {
+  translate(x: number, y: number): Shape<ShapePoints> {
     return new Shape(this.points.map(p => p.translate(x, y)) as ShapePoints);
   }
 
-  scale(r: number): Shape;
+  scale(r: number): Shape<ShapePoints>;
   // tslint:disable-next-line:unified-signatures
-  scale(x: number, y: number): Shape;
-  scale(rOrX: number, y?: number): Shape {
+  scale(x: number, y: number): Shape<ShapePoints>;
+  scale(rOrX: number, y?: number): Shape<ShapePoints> {
     const [xFactor, yFactor] = y === undefined ? [rOrX, rOrX] : [rOrX, y];
     return new Shape(this.points.map(p =>
       p.scale(xFactor, yFactor),

@@ -11,8 +11,6 @@ import {
   Keyboard,
   KeyCap,
   LabeledKeyEvent,
-  VirtualKey,
-  Dimensions,
   VirtualKeyWithProcessedShape,
 } from './keyboard-layout';
 import { DeepMap, doSetsIntersect, groupByDeep, Label } from './types';
