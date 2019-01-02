@@ -13,6 +13,7 @@ import {
   LabeledKeyEvent,
   VirtualKey,
   Dimensions,
+  VirtualKeyWithProcessedShape,
 } from './keyboard-layout';
 import { DeepMap, doSetsIntersect, groupByDeep, Label } from './types';
 
@@ -48,17 +49,14 @@ export type PhysicalKeyBindings =
 /**
  * A physical-key-with-bindings is a physical-key along with the bindings for any set of modifiers for which a binding is defined.
  */
-export interface PhysicalKeyWithBindings extends VirtualKey {
+export interface PhysicalKeyWithBindings extends VirtualKeyWithProcessedShape {
   bindings: PhysicalKeyBindings;
 }
 
 /**
  * All keybindings immediately accessible from a particular state (i.e. a sequence of keys already pressed).
  */
-export interface KeyboardWithBindings {
-  dimensions: Dimensions;
-  keys: PhysicalKeyWithBindings[];
-}
+export type KeyboardWithBindings = PhysicalKeyWithBindings[];
 
 /**
  * Given a key event plus whatever modifiers were needed to reach it, find bindings that could be reached, possibly by including additional modifiers.
@@ -171,7 +169,7 @@ export function makeKeyboardWithBindings({
   keyMapByEvent: KeyMapByEvent;
   bindingLabels: BindingLabels;
 }): KeyboardWithBindings {
-  const keys = keyboard.keys
+  return keyboard
     .map(physicalKey => {
       const { keyCap, ...virtualKey } = physicalKey;
 
@@ -187,5 +185,4 @@ export function makeKeyboardWithBindings({
       };
     })
     .filter((key => key !== undefined) as <T>(key: T | undefined) => key is T);
-  return { keys, dimensions: keyboard.dimensions };
 }

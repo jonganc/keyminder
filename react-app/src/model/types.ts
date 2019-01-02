@@ -10,6 +10,14 @@ export class Point {
   translate(x: number, y: number): Point {
     return new Point([this.coords[0] + x, this.coords[1] + y]);
   }
+
+  scale(r: number): Point;
+  // tslint:disable-next-line:unified-signatures
+  scale(x: number, y: number): Point;
+  scale(rOrX: number, y?: number): Point {
+    const [xFactor, yFactor] = y === undefined ? [rOrX, rOrX] : [rOrX, y];
+    return new Point([this.coords[0] * xFactor, this.coords[1] * yFactor]);
+  }
 }
 
 export type RawShape = [RawPoint, RawPoint, RawPoint, ...RawPoint[]];
@@ -29,6 +37,16 @@ export class Shape {
 
   translate(x: number, y: number): Shape {
     return new Shape(this.points.map(p => p.translate(x, y)) as ShapePoints);
+  }
+
+  scale(r: number): Shape;
+  // tslint:disable-next-line:unified-signatures
+  scale(x: number, y: number): Shape;
+  scale(rOrX: number, y?: number): Shape {
+    const [xFactor, yFactor] = y === undefined ? [rOrX, rOrX] : [rOrX, y];
+    return new Shape(this.points.map(p =>
+      p.scale(xFactor, yFactor),
+    ) as ShapePoints);
   }
 }
 

@@ -1,6 +1,6 @@
 import l_ from 'lodash';
 import { KeyEvent, KeyEventLabels, Modifiers } from './key-bindings';
-import { DeepMap, Label, Shape, RawPoint } from './types';
+import { DeepMap, Label, RawPoint, Shape } from './types';
 
 export type KeyCode = string;
 
@@ -27,24 +27,60 @@ export type Layout = Map<KeyCode, DeepMap<Modifiers, KeyEvent>>;
 export type KeyCap = DeepMap<Modifiers, LabeledKeyEvent>;
 
 /**
- * the representation of a physical key, containing a shape, key code, and the key's emitted when it is pressed
+ * For purposes of displaying the key, we convert contains the shape to units out of 1 (i.e. 0.3 is 30% of full width or height) and find an appropriate bounding box for text
  */
-interface PhysicalKey extends VirtualKey {
-  keyCap: KeyCap;
+export interface VirtualKeyWithProcessedShape extends VirtualKey {
+  relativeShape: Shape;
+  /**
+   * the Shape of a text box completely contained within shape.
+   */
+  relativeTextBox: Shape;
 }
 
-export type Dimensions = RawPoint;
+type GeometryWithRelativeShapes = VirtualKeyWithProcessedShape[];
+
+/**
+ * the representation of a physical key, containing a shape, key code, and the key's emitted when it is pressed.
+ */
+interface PhysicalKey extends VirtualKeyWithProcessedShape {
+  keyCap: KeyCap;
+}
 
 /**
  * one specific keyboard, with the actual keys that are passed to programs on key presses
  */
 // mainly an internal representation
-export interface Keyboard {
-  dimensions: Dimensions;
-  keys: PhysicalKey[];
+export type Keyboard = PhysicalKey[];
+
+function getAllOfOneCoordFromGeometry(
+  geometry: Geometry,
+  coord: 0 | 1,
+): number[] {
+  return l_.flatMap(geometry, virtualKey =>
+    virtualKey.shape.points.map(p => p.coords[coord]),
+  );
 }
 
-function makeKeyboardKeys({
+function getMaxForCoordsForGeometry(geometry: Geometry): RawPoint {
+  return [
+    Math.max(...getAllOfOneCoordFromGeometry(geometry, 0)),
+    Math.max(...getAllOfOneCoordFromGeometry(geometry, 1)),
+  ];
+}
+
+function makeGeometryWithRelativeDimensions(
+  geometry: Geometry,
+): GeometryWithRelativeShapes {
+  const maxForCoords = getMaxForCoordsForGeometry(geometry);
+  const scaleFactors = [1 / maxForCoords[0], 1 / maxForCoords[1]];
+
+  return geometry.map(vk => ({
+    ...vk,
+    relativeShape: vk.shape.scale(scaleFactors[0], scaleFactors[1]),
+  }));
+}
+
+export function makeKeyboard({
   geometry,
   layout,
   keyEventLabels,
@@ -52,13 +88,17 @@ function makeKeyboardKeys({
   geometry: Geometry;
   layout: Layout;
   keyEventLabels?: KeyEventLabels;
-}): PhysicalKey[] {
+}): Keyboard {
+  const geometryWithRelativeDimensions = makeGeometryWithRelativeDimensions(
+    geometry,
+  );
+
   const theKeyEventLabels =
     keyEventLabels === undefined ? new Map() : keyEventLabels;
 
-  return geometry
-    .map(virtualKey => {
-      const keyCap = layout.get(virtualKey.keyCode);
+  return geometryWithRelativeDimensions
+    .map(virtualKeyWithRelativeDimensions => {
+      const keyCap = layout.get(virtualKeyWithRelativeDimensions.keyCode);
 
       if (keyCap === undefined) {
         return undefined;
@@ -80,48 +120,10 @@ function makeKeyboardKeys({
         },
       );
 
-      return { ...virtualKey, keyCap: new DeepMap(labeledKeyCapPairs) };
+      return {
+        ...virtualKeyWithRelativeDimensions,
+        keyCap: new DeepMap(labeledKeyCapPairs),
+      };
     })
-    .filter((vk => vk !== undefined) as (
-      val: PhysicalKey | undefined,
-    ) => val is PhysicalKey);
-}
-
-function getAllOfOneCoordFromGeometry(
-  geometry: Geometry,
-  coord: 0 | 1,
-): number[] {
-  return l_.flatMap(geometry, virtualKey =>
-    virtualKey.shape.points.map(p => p.coords[coord]),
-  );
-}
-
-function getDimensions(geometry: Geometry): Dimensions {
-  return [
-    Math.max(...getAllOfOneCoordFromGeometry(geometry, 0)),
-    Math.max(...getAllOfOneCoordFromGeometry(geometry, 1)),
-  ];
-}
-
-export function makeKeyboard({
-  geometry,
-  layout,
-  keyEventLabels,
-}: {
-  geometry: Geometry;
-  layout: Layout;
-  keyEventLabels?: KeyEventLabels;
-}): Keyboard {
-  const keys = makeKeyboardKeys({
-    geometry,
-    layout,
-    keyEventLabels,
-  });
-
-  const dimensions = getDimensions(geometry);
-
-  return {
-    dimensions,
-    keys,
-  };
+    .filter((vk => vk !== undefined) as <T>(val: T | undefined) => val is T);
 }
