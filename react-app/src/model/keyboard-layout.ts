@@ -54,9 +54,9 @@ function getAllOfOneCoordFromGeometry(
   geometry: Geometry,
   coord: 0 | 1,
 ): number[] {
-  return l_.flatMap(geometry, virtualKey =>
-    virtualKey.shape.points.map(p => p.coords[coord]),
-  );
+  return l_.flatMap(geometry, virtualKey => {
+    return virtualKey.shape.points.map(p => p[coord]);
+  });
 }
 
 function getMaxForCoordsForGeometry(geometry: Geometry): RawPoint {

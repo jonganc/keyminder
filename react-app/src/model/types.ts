@@ -2,43 +2,25 @@ import l_ from 'lodash';
 
 export type RawPoint = [number, number];
 
-/**
- * a point on the edge of a keyboard key, given by an x and y coordinate
- * the units are essentially arbitrary: the length of the space will be filled by all the KeyCap's.
- */
-export class Point {
-  constructor(public readonly coords: RawPoint) {}
-  translate(x: number, y: number): Point {
-    return new Point([this.coords[0] + x, this.coords[1] + y]);
-  }
-
-  scale(r: number): Point;
-  // tslint:disable-next-line:unified-signatures
-  scale(x: number, y: number): Point;
-  scale(rOrX: number, y?: number): Point {
-    const [xFactor, yFactor] = y === undefined ? [rOrX, rOrX] : [rOrX, y];
-    return new Point([this.coords[0] * xFactor, this.coords[1] * yFactor]);
-  }
-}
-
 export type RawRectangle = [RawPoint, RawPoint];
-
-export type RectanglePoints = [Point, Point];
 
 /**
  * a 2-D shape
  */
 export class Rectangle {
-  public readonly points: RectanglePoints;
+  public readonly points: RawRectangle;
 
   constructor(rawRectangle: RawRectangle) {
-    this.points = rawRectangle.map(rp => new Point(rp)) as RectanglePoints;
+    this.points = Object.freeze(
+      rawRectangle.map(rp => Object.freeze([...rp])),
+    ) as RawRectangle;
   }
 
   translate(x: number, y: number): Rectangle {
-    return new Rectangle(this.points.map(
-      p => p.translate(x, y).coords,
-    ) as RawRectangle);
+    return new Rectangle(this.points.map(p => [
+      p[0] + x,
+      p[1] + y,
+    ]) as RawRectangle);
   }
 
   scale(r: number): Rectangle;
@@ -46,88 +28,137 @@ export class Rectangle {
   scale(x: number, y: number): Rectangle;
   scale(rOrX: number, y?: number): Rectangle {
     const [xFactor, yFactor] = y === undefined ? [rOrX, rOrX] : [rOrX, y];
-    return new Rectangle(this.points.map(
-      p => p.scale(xFactor, yFactor).coords,
-    ) as RawRectangle);
+    return new Rectangle(this.points.map(p => [
+      p[0] * xFactor,
+      p[1] * yFactor,
+    ]) as RawRectangle);
   }
-}
-
-function notImplementedYet(..._: any[]): Error {
-  throw new Error('Not implemented yet');
-}
-
-/**
- * Like lodash's groupBy except that it groups using pairwise lodash's isEqual
- */
-export function groupByDeep<T, U>(
-  arr: T[],
-  grouper: (val: T) => U,
-): [[U, [T, ...T[]]]] {
-  throw notImplementedYet(arr, grouper);
 }
 
 /**
  * A map that uses (lodash's) l_.isEqual for determining key equality
  */
-export class DeepMap<K, V> {
+export class DeepMap<K, V> implements Map<K, V> {
+  readonly [Symbol.toStringTag]: string = 'DeepMap';
+
   constructor(private _pairs: Array<[K, V]>) {}
 
-  clear(): void {
-    this._pairs = [];
-  }
-
-  delete(key: K): boolean {
-    throw notImplementedYet(key);
-  }
-
-  forEach(
-    callbackfn: (value: V, key: K, map: DeepMap<K, V>) => void,
-    thisArg?: any,
-  ): void {
-    notImplementedYet(callbackfn, thisArg);
-  }
-
-  get(key: K): V | undefined {
-    throw notImplementedYet(key);
-  }
-
-  has(key: K): boolean {
-    throw notImplementedYet(key);
-  }
-
-  set(key: K, value: V): this {
-    throw notImplementedYet(key, value);
-  }
-
-  get size(): number {
-    return this._pairs.length;
-  }
-
   /** Returns an iterable of entries in the map. */
-  [Symbol.iterator](): IterableIterator<[K, V]> {
-    throw notImplementedYet();
+  *[Symbol.iterator](): IterableIterator<[K, V]> {
+    // tslint:disable-next-line:prefer-for-of
+    for (let i = 0; i < this._pairs.length; i++) {
+      yield this._pairs[i];
+    }
   }
 
   /**
    * Returns an iterable of key, value pairs for every entry in the map.
    */
   entries(): IterableIterator<[K, V]> {
-    throw notImplementedYet();
+    return this[Symbol.iterator]();
+  }
+
+  clear(): void {
+    this._pairs = [];
+  }
+
+  delete(key: K): boolean {
+    for (const [idx, pair] of this._pairs.entries()) {
+      if (l_.isEqual(pair[0], key)) {
+        this._pairs.splice(idx, 1);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  forEach(
+    callbackfn: (value: V, key: K, map: DeepMap<K, V>) => void,
+    thisArg?: any,
+  ): void {
+    for (const pair of this._pairs) {
+      callbackfn.apply(thisArg, [pair[1], pair[0], this]);
+    }
+  }
+
+  get(key: K): V | undefined {
+    for (const pair of this._pairs) {
+      if (l_.isEqual(pair[0], key)) {
+        return pair[1];
+      }
+    }
+    return undefined;
+  }
+
+  has(key: K): boolean {
+    for (const pair of this._pairs) {
+      if (l_.isEqual(pair[0], key)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  set(key: K, value: V): this {
+    for (const pair of this._pairs) {
+      if (l_.isEqual(pair[0], key)) {
+        pair[1] = value;
+        return this;
+      }
+    }
+    this._pairs.push([key, value]);
+    return this;
+  }
+
+  get size(): number {
+    return this._pairs.length;
   }
 
   /**
    * Returns an iterable of keys in the map
    */
-  keys(): IterableIterator<K> {
-    throw notImplementedYet();
+  *keys(): IterableIterator<K> {
+    // tslint:disable-next-line:prefer-for-of
+    for (let i = 0; i < this._pairs.length; i++) {
+      yield this._pairs[i][0];
+    }
   }
 
   /**
    * Returns an iterable of values in the map
    */
-  values(): IterableIterator<V> {
-    throw notImplementedYet();
+  *values(): IterableIterator<V> {
+    // tslint:disable-next-line:prefer-for-of
+    for (let i = 0; i < this._pairs.length; i++) {
+      yield this._pairs[i][1];
+    }
   }
+}
+
+/**
+ * Like lodash's groupBy except that it groups using pairwise lodash isEqual
+ */
+export function groupByDeep<T, U>(
+  arr: T[],
+  groupFunc: (val: T) => U,
+): DeepMap<U, [T, ...T[]]> {
+  const groups: Array<[U, [T, ...T[]]]> = [];
+  for (const elt of arr) {
+    const matcher = groupFunc(elt);
+    let didGroup = false;
+    for (const group of groups) {
+      if (l_.isEqual(group[0], matcher)) {
+        group[1].push(elt);
+        didGroup = true;
+        break;
+      }
+    }
+    if (!didGroup) {
+      groups.push([matcher, [elt]]);
+    }
+  }
+
+  return new DeepMap(groups);
 }
 
 export type Label = string | React.Component;

@@ -51,12 +51,12 @@ export interface ModdedKeyEvent {
   modifiers: Modifiers;
 }
 
+export type Binding = string | KeyMap;
+
 export interface KeyMap {
   bindings: DeepMap<ModdedKeyEvent, Binding>;
   name?: string;
 }
-
-export type Binding = string | KeyMap;
 
 export class KeyMapByEvent {
   constructor(

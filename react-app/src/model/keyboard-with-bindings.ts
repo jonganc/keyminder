@@ -19,14 +19,14 @@ import { DeepMap, doSetsIntersect, groupByDeep, Label } from './types';
 
 interface PhysicalKeyBindingSingle extends LabeledKeyEvent {
   /**
-   * The physical-key modifiers might be transformed to produce the key-event modifiers, which is what is actually used to determine the bindings. Thus, we include the key-event modifiers for completeness. E.g. if we press Control-Shift-2, the key-event will be "@" and the physical-key modifiers will be [Control, Shift] but the key-event modifiers will just be [Control]. (It's mostly for informational purposes)
+   * The physical-key modifiers might be transformed to produce the key-event modifiers, which are what are actually used to determine the bindings. For completeness, we include the key-event modifiers. E.g. if we press Control-Shift-2, the key-event will be "@" and the physical-key modifiers will be [Control, Shift] but the key-event modifiers will just be [Control]. (It's mostly for informational purposes)
    */
   keyEventModifiers: Modifiers;
   binding: Binding;
   bindingLabel: Label;
 }
 
-// This corresponds to the case where multiple key bindings map to the same key sequence, which can happen if the physical key can generate multiple key events and there are bindings that overlap. For example, Shift-2 maps to "@". Now imagine that Control-Shift-2 were set to be translated to "!" and image that we have a binding for Control-@. Then the physical key press Control-Shift-2 would be bound to both "!" (insert "!") and the binding for Control-@. In practice, this won't often occur, since only Shift and Alt-Gr translate keys usually. But... it's not beyond the realm of possiblity so we have to allow for it.
+// This corresponds to the case where multiple key bindings map to the same key sequence, which can happen if the physical key can generate multiple key events and there are bindings that overlap. For example, Shift-2 maps to "@". Now imagine that Control-2 were set to be translated to "!". Then the physical key press Control-Shift-2 would be bound to both Control-@ and Shift-! and they might both be bound. In practice, this won't often occur, since only Shift and Alt-Gr translate keys usually. But... it's not beyond the realm of possiblity so we have to allow for it.
 type PhysicalKeyBindingConflicting = [
   PhysicalKeyBindingSingle,
   PhysicalKeyBindingSingle,
@@ -145,15 +145,29 @@ function mapKeyCapToPhysicalKeyBindings({
     return undefined;
   }
 
-  const groupedBindingPairs = groupByDeep(rawBindingPairs, pair => pair[0]).map(
-    ([modifiers, rawBindingPairsForGivenModifiers]) =>
-      [
-        modifiers,
-        rawBindingPairsForGivenModifiers.length === 1
-          ? rawBindingPairsForGivenModifiers[0][1]
-          : rawBindingPairsForGivenModifiers.map(pair => pair[1]),
-      ] as [Modifiers, PhysicalKeyBinding],
-  );
+  const groupedBindingPairs = [
+    ...groupByDeep(rawBindingPairs, pair => pair[0]).entries(),
+  ].map(([modifiers, rawBindingPairsForGivenModifiers]) => {
+    let physicalKeyBinding: PhysicalKeyBinding;
+    if (rawBindingPairsForGivenModifiers.length === 1) {
+      physicalKeyBinding = rawBindingPairsForGivenModifiers[0][1];
+    } else {
+      const rawPhysicalKeyBindings = rawBindingPairsForGivenModifiers.map(
+        pair => pair[1],
+      );
+      // we want the keys with the longest Modifers length in the keymap, i.e. the shortest keyEventModifier length
+      const minkeyEventModifierLength = Math.min(
+        rawPhysicalKeyBindings.map(pkb => pkb.keyE),
+      );
+    }
+
+    return [
+      modifiers,
+      rawBindingPairsForGivenModifiers.length === 1
+        ? rawBindingPairsForGivenModifiers[0][1]
+        : rawBindingPairsForGivenModifiers.map(pair => pair[1]),
+    ] as [Modifiers, PhysicalKeyBinding];
+  });
 
   return new DeepMap(groupedBindingPairs);
 }
