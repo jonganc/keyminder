@@ -1,12 +1,12 @@
 // a dummy keyboard for testing
 
 import { KeyEventLabels, Modifiers } from '../model/key-bindings';
-import { Geometry, Layout } from '../model/keyboard-layout';
+import { Geometry, Layout, makeKeyboard } from '../model/keyboard-layout';
 import { DeepMap, Rectangle } from '../model/types';
 
-const basicKeyCapShape = Rectangle.fromRawRectangle([[0, 0], [20, 20]]);
+const basicKeyCapShape = new Rectangle([[0, 0], [20, 20]]);
 
-export const geometry: Geometry = [
+const geometry: Geometry = [
   {
     keyCode: 'AE01',
     shape: basicKeyCapShape,
@@ -37,7 +37,7 @@ export const geometry: Geometry = [
   },
 ];
 
-export const keyCaps: Layout = new Map([
+const layout: Layout = new Map([
   ['AE01', new DeepMap([[Modifiers(), 'q'], [Modifiers(['Shift']), 'Q']])],
   ['AE02', new DeepMap([[Modifiers(), 'w'], [Modifiers(['Shift']), 'W']])],
   ['AE03', new DeepMap([[Modifiers(), 'e'], [Modifiers(['Shift']), 'E']])],
@@ -47,4 +47,6 @@ export const keyCaps: Layout = new Map([
   ['AD03', new DeepMap([[Modifiers(), 'd'], [Modifiers(['Shift']), 'D']])],
 ]);
 
-export const keyEventLabels: KeyEventLabels = new Map([]);
+const keyEventLabels: KeyEventLabels = new Map([]);
+
+export const keyboard = makeKeyboard({ geometry, layout, keyEventLabels });

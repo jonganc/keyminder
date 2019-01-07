@@ -31,7 +31,7 @@ class App extends Component<WithStyles<typeof styles>> {
             <Route
               path="/"
               exact
-              component={() => <div className="App">Hello, this is an app</div>}
+              component={() => <div className="App">This is the main app</div>}
             />
             <Route path="/dummy" component={Dummy} />
           </>

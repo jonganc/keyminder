@@ -100,6 +100,35 @@ function mapKeyEventWithModifiersToBindings({
 }
 
 /**
+ * Raw PhysicalKeyBindings are an array of PhysicalKeyBindingSingles that represent all the bindings tied to a physical key pressed with a set of modifiers. Depending on how they are processed, they may result in a PhysicalKeyBindingSingle or PhysicalKeyBindingConflicting
+ */
+function processRawPhysicalKeyBindings(
+  rawPhysicalKeyBindings: [
+    PhysicalKeyBindingSingle,
+    ...PhysicalKeyBindingSingle[]
+  ],
+): PhysicalKeyBinding {
+  if (rawPhysicalKeyBindings.length === 1) {
+    return rawPhysicalKeyBindings[0];
+  } else {
+    // we want the keys with the longest Modifers length in the keymap, i.e. the shortest keyEventModifier length
+    const minKeyEventModifierLength = Math.min(
+      ...rawPhysicalKeyBindings.map(pkb => pkb.keyEventModifiers.size),
+    );
+
+    const physicalKeyBindings = rawPhysicalKeyBindings.filter(
+      pkb => pkb.keyEventModifiers.size === minKeyEventModifierLength,
+    ) as PhysicalKeyBindingConflicting;
+
+    if (physicalKeyBindings.length === 1) {
+      return physicalKeyBindings[0];
+    } else {
+      return physicalKeyBindings;
+    }
+  }
+}
+
+/**
  * Given a key cap, find the accessible physical key bindings, i.e. any key bindings which can be reached via a set of modifiers
  */
 function mapKeyCapToPhysicalKeyBindings({
@@ -111,7 +140,9 @@ function mapKeyCapToPhysicalKeyBindings({
   keyMapByEvent: KeyMapByEvent;
   bindingLabels: BindingLabels;
 }): PhysicalKeyBindings | undefined {
-  const rawBindingPairs: Array<[Modifiers, PhysicalKeyBinding]> = l_.flatMap(
+  const rawBindingPairs: Array<
+    [Modifiers, PhysicalKeyBindingSingle]
+  > = l_.flatMap(
     [...keyCap.entries()],
     ([physicalModifiers, labeledKeyEvent]) => {
       const accessibleBindings = mapKeyEventWithModifiersToBindings({
@@ -124,7 +155,7 @@ function mapKeyCapToPhysicalKeyBindings({
         ({ binding, fullPhysicalModifiers, keyEventModifiers }) => {
           const bindingLabel =
             binding instanceof KeyMapByEvent
-              ? // FIXME Ideally, this would be some React component, like () => (<div class="keymap-binding" />)... but I don't want this file to have to use TSX. Maybe I make some file with the React Code for this? Or I could allow an element of bindingLabels to be the symbol KeyMap or something and put the component there...
+              ? // FIXME Ideally, this would be some React component, like () => (<div class="keymap-binding" />)... but I don't want this file to have to use TSX. Maybe I make some file with the React Code for this? Or I could allow an element of bindingLabels to be the symbol KeyMap or something and put the component there... Or I could just manually write out JSX in TypeScipt...
                 'keymap placeholder'
               : l_.defaultTo(bindingLabels.get(binding), binding);
           return [
@@ -135,7 +166,7 @@ function mapKeyCapToPhysicalKeyBindings({
               binding,
               bindingLabel,
             },
-          ] as [Modifiers, PhysicalKeyBinding];
+          ] as [Modifiers, PhysicalKeyBindingSingle];
         },
       );
     },
@@ -147,26 +178,15 @@ function mapKeyCapToPhysicalKeyBindings({
 
   const groupedBindingPairs = [
     ...groupByDeep(rawBindingPairs, pair => pair[0]).entries(),
-  ].map(([modifiers, rawBindingPairsForGivenModifiers]) => {
-    let physicalKeyBinding: PhysicalKeyBinding;
-    if (rawBindingPairsForGivenModifiers.length === 1) {
-      physicalKeyBinding = rawBindingPairsForGivenModifiers[0][1];
-    } else {
-      const rawPhysicalKeyBindings = rawBindingPairsForGivenModifiers.map(
-        pair => pair[1],
-      );
-      // we want the keys with the longest Modifers length in the keymap, i.e. the shortest keyEventModifier length
-      const minkeyEventModifierLength = Math.min(
-        rawPhysicalKeyBindings.map(pkb => pkb.keyE),
-      );
-    }
+  ].map(([modifiers, rawBindingPairsForModifiers]) => {
+    const physicalKeyBindings = processRawPhysicalKeyBindings(
+      rawBindingPairsForModifiers.map(pair => pair[1]) as [
+        PhysicalKeyBindingSingle,
+        ...PhysicalKeyBindingSingle[]
+      ],
+    );
 
-    return [
-      modifiers,
-      rawBindingPairsForGivenModifiers.length === 1
-        ? rawBindingPairsForGivenModifiers[0][1]
-        : rawBindingPairsForGivenModifiers.map(pair => pair[1]),
-    ] as [Modifiers, PhysicalKeyBinding];
+    return [modifiers, physicalKeyBindings] as [Modifiers, PhysicalKeyBinding];
   });
 
   return new DeepMap(groupedBindingPairs);

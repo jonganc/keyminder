@@ -16,6 +16,14 @@ export class Rectangle {
     ) as RawRectangle;
   }
 
+  get width() {
+    return this.points[1][0] - this.points[0][0];
+  }
+
+  get height() {
+    return this.points[1][1] - this.points[0][1];
+  }
+
   translate(x: number, y: number): Rectangle {
     return new Rectangle(this.points.map(p => [
       p[0] + x,

@@ -1,6 +1,9 @@
 import { createStyles, WithStyles, withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
 
+import Keyboard from './Keyboard';
+import { bindingLabels, keyboard, keyMapByEvent } from '../dummy-data';
+
 const styles = createStyles({
   root: {
     paddingTop: 80,
@@ -10,11 +13,17 @@ const styles = createStyles({
   },
 });
 
-class App extends Component<WithStyles<typeof styles>> {
+class Dummy extends Component<WithStyles<typeof styles>> {
   render() {
     const { classes } = this.props;
-    return <div className={classes.root}>Abcdef</div>;
+    return (
+      <Keyboard
+        keyboard={keyboard}
+        keyMapByEvent={keyMapByEvent}
+        bindingLabels={bindingLabels}
+      />
+    );
   }
 }
 
-export default withStyles(styles)(App);
+export default withStyles(styles)(Dummy);

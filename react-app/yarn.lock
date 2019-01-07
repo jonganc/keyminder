@@ -994,6 +994,11 @@
   resolved "https://registry.yarnpkg.com/@types/history/-/history-4.7.2.tgz#0e670ea254d559241b6eeb3894f8754991e73220"
   integrity sha512-ui3WwXmjTaY73fOQ3/m3nnajU/Orhi6cEu5rzX+BrAAJxa3eITXZ5ch9suPqtM03OWhAHhPSyBGCN4UKoxO20Q==
 
+"@types/jest-diff@^20.0.0":
+  version "20.0.0"
+  resolved "https://registry.yarnpkg.com/@types/jest-diff/-/jest-diff-20.0.0.tgz#3d1acf8d25d878c3566cd13b4e4e1f4fd6640111"
+  integrity sha512-9wBX/SsB0M3Zptv/5yV1BNa7B/YIEhJRzK/cd7s2/uPzdRhg8gjDsJNzMubPPLK+0ZWE7eRd+bEQAnaWAGekrw==
+
 "@types/jest@23.x.x":
   version "23.3.11"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.11.tgz#d3a936ae753d9e484965f5cbd19027c2b8af2551"
