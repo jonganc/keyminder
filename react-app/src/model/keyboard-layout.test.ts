@@ -54,7 +54,7 @@ describe('makeKeyboard', () => {
     expect(keyboard).toEqual(expectedKeyboard);
 
     // let's fully check one of the relative shapes
-    const ae01RS = keyboard.find(key => key.keyCode === 'AE01')!.relativeShape
+    const ae01RS = keyboard.find(key => key.keyCode === 'AE01')!.relativeWidth
       .points;
     for (const [actual, expected] of [
       [ae01RS[0][1], 0.2],

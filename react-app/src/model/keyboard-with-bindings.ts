@@ -11,7 +11,7 @@ import {
   Keyboard,
   KeyCap,
   LabeledKeyEvent,
-  VirtualKeyWithProcessedShape,
+  VirtualKeyForRendering,
 } from './keyboard-layout';
 import { DeepMap, doSetsIntersect, groupByDeep, Label } from './types';
 
@@ -47,7 +47,7 @@ export type PhysicalKeyBindings =
 /**
  * A physical-key-with-bindings is a physical-key along with the bindings for any set of modifiers for which a binding is defined.
  */
-export interface PhysicalKeyWithBindings extends VirtualKeyWithProcessedShape {
+export interface PhysicalKeyWithBindings extends VirtualKeyForRendering {
   bindings: PhysicalKeyBindings;
 }
 

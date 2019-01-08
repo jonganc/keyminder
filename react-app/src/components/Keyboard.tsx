@@ -31,8 +31,8 @@ class Keyboard extends Component<
     return (
       <div className={classnames('keyboard', classes.root)}>
         {keyboardWithBindings.map((pkwb, idx) => {
-          const width = `${pkwb.relativeShape.width * 100}%`;
-          const height = `${pkwb.relativeShape.height * 100}%`;
+          const width = `${pkwb.relativeWidth.width * 100}%`;
+          const height = `${pkwb.relativeWidth.height * 100}%`;
           return (
             <div
               className={classnames('default', classes.defaultKey)}

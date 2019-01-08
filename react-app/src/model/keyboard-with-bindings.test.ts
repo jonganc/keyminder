@@ -18,7 +18,7 @@ describe('makeKeyboardWithBindings', () => {
       {
         keyCode: 'AE01',
         shape: new Rectangle([[0, 10], [20, 30]]),
-        relativeShape: new Rectangle([[0, 0.2], [0.5, 0.6]]),
+        relativeWidth: new Rectangle([[0, 0.2], [0.5, 0.6]]),
         keyCap: new DeepMap([
           [Modifiers(), { keyEvent: '1', keyEventLabel: '1' }],
           [Modifiers(['Shift']), { keyEvent: '!', keyEventLabel: '!' }],
@@ -28,7 +28,7 @@ describe('makeKeyboardWithBindings', () => {
       {
         keyCode: 'AD01',
         shape: new Rectangle([[25, 35], [40, 50]]),
-        relativeShape: new Rectangle([[0.625, 0.7], [1, 1]]),
+        relativeWidth: new Rectangle([[0.625, 0.7], [1, 1]]),
         keyCap: new DeepMap([
           [Modifiers(), { keyEvent: 'q', keyEventLabel: 'The letter q' }],
           [Modifiers(['Shift']), { keyEvent: 'Q', keyEventLabel: 'Q' }],
@@ -83,7 +83,7 @@ describe('makeKeyboardWithBindings', () => {
       {
         keyCode: 'AE01',
         shape: new Rectangle([[0, 10], [20, 30]]),
-        relativeShape: new Rectangle([[0, 0.2], [0.5, 0.6]]),
+        relativeWidth: new Rectangle([[0, 0.2], [0.5, 0.6]]),
         bindings: new DeepMap<Modifiers, PhysicalKeyBinding>([
           [
             Modifiers(),
@@ -119,7 +119,7 @@ describe('makeKeyboardWithBindings', () => {
       {
         keyCode: 'AD01',
         shape: new Rectangle([[25, 35], [40, 50]]),
-        relativeShape: new Rectangle([[0.625, 0.7], [1, 1]]),
+        relativeWidth: new Rectangle([[0.625, 0.7], [1, 1]]),
         bindings: new DeepMap<Modifiers, PhysicalKeyBinding>([
           [
             Modifiers(),

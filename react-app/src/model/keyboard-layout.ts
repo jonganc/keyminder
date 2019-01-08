@@ -11,13 +11,22 @@ export type Point = [number, number];
  */
 export interface VirtualKey {
   keyCode: KeyCode;
-  shape: Rectangle;
+  width: number;
+  /**
+   * the left margin of the key, in the same units as the width
+   */
+  marginLeft: number;
+}
+
+export interface KeyRow {
+  keys: VirtualKey[];
+  marginBottom: number | string;
 }
 
 /**
  * the geometry of a keyboard type, e.g. the generic geometry of 105-key keyboard
  */
-export type Geometry = VirtualKey[];
+export type Geometry = KeyRow[];
 
 export interface LabeledKeyEvent {
   keyEvent: KeyEvent;
@@ -29,26 +38,31 @@ export type Layout = Map<KeyCode, DeepMap<Modifiers, KeyEvent>>;
 export type KeyCap = DeepMap<Modifiers, LabeledKeyEvent>;
 
 /**
- * For purposes of displaying the key, we convert the shape to units out of 1 (i.e. 0.3 is 30% of full width or height) and find an appropriate bounding box for text
+ * For purposes of displaying the key, we convert the width to units out of 1 (i.e. 0.3 is 30% of full width)
  */
-export interface VirtualKeyWithProcessedShape extends VirtualKey {
-  relativeShape: Rectangle;
+export interface VirtualKeyForRendering extends VirtualKey {
+  relativeMarginLeft: number;
+  relativeWidth: number;
 }
 
-type GeometryWithRelativeShapes = VirtualKeyWithProcessedShape[];
-
-/**
- * the representation of a physical key, containing a shape, key code, and the key's emitted when it is pressed.
- */
-interface PhysicalKey extends VirtualKeyWithProcessedShape {
+interface PhysicalKey extends VirtualKeyForRendering {
   keyCap: KeyCap;
 }
+
+export interface KeyRowForRendering {
+  keys: VirtualKeyForRendering[];
+  marginBottom: number | string;
+}
+
+type GeometryForRendering = KeyRowForRendering[];
 
 /**
  * one specific keyboard, with the actual keys that are passed to programs on key presses
  */
 // mainly an internal representation
-export type Keyboard = PhysicalKey[];
+export type Keyboard = GeometryForRendering[];
+
+function getKeyRowWidth(keyRow: KeyRow): number {}
 
 function getAllOfOneCoordFromGeometry(
   geometry: Geometry,
@@ -66,9 +80,7 @@ function getMaxForCoordsForGeometry(geometry: Geometry): RawPoint {
   ];
 }
 
-function makeGeometryWithRelativeDimensions(
-  geometry: Geometry,
-): GeometryWithRelativeShapes {
+function makeGeometryForRendering(geometry: Geometry): GeometryForRendering {
   const maxForCoords = getMaxForCoordsForGeometry(geometry);
   const scaleFactors = [1 / maxForCoords[0], 1 / maxForCoords[1]];
 
@@ -87,9 +99,7 @@ export function makeKeyboard({
   layout: Layout;
   keyEventLabels?: KeyEventLabels;
 }): Keyboard {
-  const geometryWithRelativeDimensions = makeGeometryWithRelativeDimensions(
-    geometry,
-  );
+  const geometryWithRelativeDimensions = makeGeometryForRendering(geometry);
 
   const theKeyEventLabels =
     keyEventLabels === undefined ? new Map() : keyEventLabels;
