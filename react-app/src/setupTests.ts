@@ -1,28 +1,9 @@
 import jestDiff from 'jest-diff';
 import { DeepMap } from './model/types';
 
-function getIsCloseComparer(
-  digits: number,
-): (expected: any, received: any) => boolean | undefined {
-  const diff = 10 ** (-1 * digits);
-  return (expected, received) => {
-    switch (
-      [expected, received].filter(val => typeof val === 'number').length
-    ) {
-      case 0:
-      case 1:
-        return undefined;
-      case 2:
-        return Math.abs(expected - received) < diff;
-      default:
-        throw new Error('Should never reach here');
-    }
-  };
-}
-
 function getDeepMapComparer(
   jestThis: jest.MatcherUtils,
-  digits?: number | undefined,
+  digits: number | undefined,
 ): (expected: any, received: any) => boolean | undefined {
   const diff = digits === undefined ? undefined : 10 ** (-1 * digits);
   return (expected, received) => {
@@ -31,7 +12,7 @@ function getDeepMapComparer(
       typeof expected === 'number' &&
       typeof received === 'number'
     ) {
-      return Math.abs(expected - received) < diff;
+      return Math.abs(expected - received) < expected * diff;
     }
 
     switch ([received, expected].filter(val => val instanceof DeepMap).length) {
@@ -43,7 +24,7 @@ function getDeepMapComparer(
         return (jestThis.equals as any)(
           [...(received as DeepMap<any, any>)],
           expect.arrayContaining([...(expected as DeepMap<any, any>)]),
-          [getDeepMapComparer(jestThis)],
+          [getDeepMapComparer(jestThis, digits)],
         );
       default:
         throw new Error('Should never reach here');
@@ -98,7 +79,7 @@ expect.extend({
    */
   toEqualExtended(received, expected, digits: number) {
     const pass = (this.equals as any)(received, expected, [
-      getDeepMapComparer(this),
+      getDeepMapComparer(this, digits),
     ]);
 
     return {

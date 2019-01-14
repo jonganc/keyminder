@@ -9,7 +9,8 @@ import {
 } from './key-bindings';
 import {
   Keyboard,
-  KeyCap,
+  KeyRowForRendering,
+  LabeledKeyCap,
   LabeledKeyEvent,
   VirtualKeyForRendering,
 } from './keyboard-layout';
@@ -40,9 +41,7 @@ export type PhysicalKeyBinding =
   | PhysicalKeyBindingSingle
   | PhysicalKeyBindingConflicting;
 
-export type PhysicalKeyBindings =
-  | DeepMap<Modifiers, PhysicalKeyBinding>
-  | undefined;
+export type PhysicalKeyBindings = DeepMap<Modifiers, PhysicalKeyBinding>;
 
 /**
  * A physical-key-with-bindings is a physical-key along with the bindings for any set of modifiers for which a binding is defined.
@@ -51,10 +50,14 @@ export interface PhysicalKeyWithBindings extends VirtualKeyForRendering {
   bindings: PhysicalKeyBindings;
 }
 
+export interface PhysicalKeyWithBindingsRow extends KeyRowForRendering {
+  keys: PhysicalKeyWithBindings[];
+}
+
 /**
  * All keybindings immediately accessible from a particular state (i.e. a sequence of keys already pressed).
  */
-export type KeyboardWithBindings = PhysicalKeyWithBindings[];
+export type KeyboardWithBindings = PhysicalKeyWithBindingsRow[];
 
 /**
  * Given a key event plus whatever modifiers were needed to reach it, find bindings that could be reached, possibly by including additional modifiers.
@@ -136,10 +139,10 @@ function mapKeyCapToPhysicalKeyBindings({
   keyMapByEvent,
   bindingLabels,
 }: {
-  keyCap: KeyCap;
+  keyCap: LabeledKeyCap;
   keyMapByEvent: KeyMapByEvent;
   bindingLabels: BindingLabels;
-}): PhysicalKeyBindings | undefined {
+}): PhysicalKeyBindings {
   const rawBindingPairs: Array<
     [Modifiers, PhysicalKeyBindingSingle]
   > = l_.flatMap(
@@ -172,10 +175,6 @@ function mapKeyCapToPhysicalKeyBindings({
     },
   );
 
-  if (rawBindingPairs.length === 0) {
-    return undefined;
-  }
-
   const groupedBindingPairs = [
     ...groupByDeep(rawBindingPairs, pair => pair[0]).entries(),
   ].map(([modifiers, rawBindingPairsForModifiers]) => {
@@ -202,19 +201,21 @@ export function makeKeyboardWithBindings({
   bindingLabels: BindingLabels;
 }): KeyboardWithBindings {
   return keyboard
-    .map(physicalKey => {
-      const { keyCap, ...virtualKey } = physicalKey;
+    .map(physicalRow => ({
+      keys: physicalRow.keys.map(physicalKey => {
+        const { keyCap, ...virtualKey } = physicalKey;
 
-      const bindings = mapKeyCapToPhysicalKeyBindings({
-        keyCap,
-        keyMapByEvent,
-        bindingLabels,
-      });
+        const bindings = mapKeyCapToPhysicalKeyBindings({
+          keyCap,
+          keyMapByEvent,
+          bindingLabels,
+        });
 
-      return {
-        ...virtualKey,
-        bindings,
-      };
-    })
+        return {
+          ...virtualKey,
+          bindings,
+        };
+      }),
+    }))
     .filter((key => key !== undefined) as <T>(key: T | undefined) => key is T);
 }

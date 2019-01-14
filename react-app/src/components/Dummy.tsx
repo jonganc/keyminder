@@ -1,8 +1,7 @@
 import { createStyles, WithStyles, withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
-
-import Keyboard from './Keyboard';
 import { bindingLabels, keyboard, keyMapByEvent } from '../dummy-data';
+import Keyboard from './Keyboard';
 
 const styles = createStyles({
   root: {

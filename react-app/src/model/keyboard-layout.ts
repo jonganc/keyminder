@@ -1,6 +1,6 @@
 import l_ from 'lodash';
 import { KeyEvent, KeyEventLabels, Modifiers } from './key-bindings';
-import { DeepMap, Label, RawPoint, Rectangle } from './types';
+import { DeepMap, Labelapp } from './types';
 
 export type KeyCode = string;
 
@@ -15,12 +15,12 @@ export interface VirtualKey {
   /**
    * the left margin of the key, in the same units as the width
    */
-  marginLeft: number;
+  marginLeft?: number;
 }
 
 export interface KeyRow {
   keys: VirtualKey[];
-  marginBottom: number | string;
+  marginBottom?: number | string;
 }
 
 /**
@@ -33,9 +33,11 @@ export interface LabeledKeyEvent {
   keyEventLabel: Label;
 }
 
-export type Layout = Map<KeyCode, DeepMap<Modifiers, KeyEvent>>;
+export type KeyCap = DeepMap<Modifiers, KeyEvent>;
 
-export type KeyCap = DeepMap<Modifiers, LabeledKeyEvent>;
+export type Layout = Map<KeyCode, KeyCap>;
+
+export type LabeledKeyCap = DeepMap<Modifiers, LabeledKeyEvent>;
 
 /**
  * For purposes of displaying the key, we convert the width to units out of 1 (i.e. 0.3 is 30% of full width)
@@ -45,48 +47,49 @@ export interface VirtualKeyForRendering extends VirtualKey {
   relativeWidth: number;
 }
 
-interface PhysicalKey extends VirtualKeyForRendering {
-  keyCap: KeyCap;
-}
-
-export interface KeyRowForRendering {
+export interface KeyRowForRendering extends KeyRow {
   keys: VirtualKeyForRendering[];
-  marginBottom: number | string;
 }
 
 type GeometryForRendering = KeyRowForRendering[];
+
+interface PhysicalKey extends VirtualKeyForRendering {
+  keyCap: LabeledKeyCap;
+}
+
+export interface PhysicalRow extends KeyRowForRendering {
+  keys: PhysicalKey[];
+}
 
 /**
  * one specific keyboard, with the actual keys that are passed to programs on key presses
  */
 // mainly an internal representation
-export type Keyboard = GeometryForRendering[];
+export type Keyboard = PhysicalRow[];
 
-function getKeyRowWidth(keyRow: KeyRow): number {}
-
-function getAllOfOneCoordFromGeometry(
-  geometry: Geometry,
-  coord: 0 | 1,
-): number[] {
-  return l_.flatMap(geometry, virtualKey => {
-    return virtualKey.shape.points.map(p => p[coord]);
-  });
+function getKeyRowWidth(keyRow: KeyRow): number {
+  let sum = 0;
+  for (const key of keyRow.keys) {
+    sum += key.width + l_.defaultTo(key.marginLeft, 0);
+  }
+  return sum;
 }
 
-function getMaxForCoordsForGeometry(geometry: Geometry): RawPoint {
-  return [
-    Math.max(...getAllOfOneCoordFromGeometry(geometry, 0)),
-    Math.max(...getAllOfOneCoordFromGeometry(geometry, 1)),
-  ];
+function getGeometryWidth(geometry: Geometry): number {
+  return Math.max(...geometry.map(getKeyRowWidth));
 }
 
 function makeGeometryForRendering(geometry: Geometry): GeometryForRendering {
-  const maxForCoords = getMaxForCoordsForGeometry(geometry);
-  const scaleFactors = [1 / maxForCoords[0], 1 / maxForCoords[1]];
+  const factor = 1 / getGeometryWidth(geometry);
 
-  return geometry.map(vk => ({
-    ...vk,
-    relativeShape: vk.shape.scale(scaleFactors[0], scaleFactors[1]),
+  return geometry.map(row => ({
+    ...row,
+    keys: row.keys.map(vk => ({
+      ...vk,
+      relativeWidth: factor * vk.width,
+      relativeMarginLeft:
+        vk.marginLeft === undefined ? 0 : factor * vk.marginLeft,
+    })),
   }));
 }
 
@@ -99,39 +102,42 @@ export function makeKeyboard({
   layout: Layout;
   keyEventLabels?: KeyEventLabels;
 }): Keyboard {
-  const geometryWithRelativeDimensions = makeGeometryForRendering(geometry);
+  const geometryForRendering = makeGeometryForRendering(geometry);
 
   const theKeyEventLabels =
     keyEventLabels === undefined ? new Map() : keyEventLabels;
 
-  return geometryWithRelativeDimensions
-    .map(virtualKeyWithRelativeDimensions => {
-      const keyCap = layout.get(virtualKeyWithRelativeDimensions.keyCode);
+  return geometryForRendering.map(keyRowForRendering => ({
+    ...keyRowForRendering,
+    keys: keyRowForRendering.keys
+      .map(virtualKeyForRendering => {
+        const keyCap = layout.get(virtualKeyForRendering.keyCode);
 
-      if (keyCap === undefined) {
-        return undefined;
-      }
+        if (keyCap === undefined) {
+          return undefined;
+        }
 
-      const labeledKeyCapPairs = [...keyCap.entries()].map(
-        ([modifiers, keyEvent]) => {
-          const keyEventLabel = theKeyEventLabels.get(keyEvent);
-          if (keyEventLabel === undefined) {
-            return [modifiers, { keyEvent, keyEventLabel: keyEvent }] as [
+        const labeledKeyCapPairs = [...keyCap.entries()].map(
+          ([modifiers, keyEvent]) => {
+            const keyEventLabel = theKeyEventLabels.get(keyEvent);
+            if (keyEventLabel === undefined) {
+              return [modifiers, { keyEvent, keyEventLabel: keyEvent }] as [
+                Modifiers,
+                LabeledKeyEvent
+              ];
+            }
+            return [modifiers, { keyEvent, keyEventLabel }] as [
               Modifiers,
               LabeledKeyEvent
             ];
-          }
-          return [modifiers, { keyEvent, keyEventLabel }] as [
-            Modifiers,
-            LabeledKeyEvent
-          ];
-        },
-      );
+          },
+        );
 
-      return {
-        ...virtualKeyWithRelativeDimensions,
-        keyCap: new DeepMap(labeledKeyCapPairs),
-      };
-    })
-    .filter((vk => vk !== undefined) as <T>(val: T | undefined) => val is T);
+        return {
+          ...virtualKeyForRendering,
+          keyCap: new DeepMap(labeledKeyCapPairs),
+        };
+      })
+      .filter((vk => vk !== undefined) as <T>(val: T | undefined) => val is T),
+  }));
 }

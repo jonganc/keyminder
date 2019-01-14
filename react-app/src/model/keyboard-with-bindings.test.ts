@@ -1,38 +1,48 @@
-import { Rectangle, DeepMap } from './types';
 import {
-  Modifiers,
-  KeyMapByEvent,
   BindingByEvent,
   BindingLabels,
+  KeyMapByEvent,
+  Modifiers,
 } from './key-bindings';
+import { Keyboard } from './keyboard-layout';
 import {
-  makeKeyboardWithBindings,
   KeyboardWithBindings,
+  makeKeyboardWithBindings,
   PhysicalKeyBinding,
 } from './keyboard-with-bindings';
-import { Keyboard } from './keyboard-layout';
+import { DeepMap } from './types';
 
 describe('makeKeyboardWithBindings', () => {
   it('should make a KeyboardWithBindings', () => {
     const keyboard: Keyboard = [
       {
-        keyCode: 'AE01',
-        shape: new Rectangle([[0, 10], [20, 30]]),
-        relativeWidth: new Rectangle([[0, 0.2], [0.5, 0.6]]),
-        keyCap: new DeepMap([
-          [Modifiers(), { keyEvent: '1', keyEventLabel: '1' }],
-          [Modifiers(['Shift']), { keyEvent: '!', keyEventLabel: '!' }],
-          [Modifiers(['Control']), { keyEvent: '@', keyEventLabel: '@' }],
-        ]),
+        keys: [
+          {
+            keyCode: 'AE01',
+            width: 20,
+            relativeWidth: 1,
+            relativeMarginLeft: 0,
+            keyCap: new DeepMap([
+              [Modifiers(), { keyEvent: '1', keyEventLabel: '1' }],
+              [Modifiers(['Shift']), { keyEvent: '!', keyEventLabel: '!' }],
+              [Modifiers(['Control']), { keyEvent: '@', keyEventLabel: '@' }],
+            ]),
+          },
+        ],
       },
       {
-        keyCode: 'AD01',
-        shape: new Rectangle([[25, 35], [40, 50]]),
-        relativeWidth: new Rectangle([[0.625, 0.7], [1, 1]]),
-        keyCap: new DeepMap([
-          [Modifiers(), { keyEvent: 'q', keyEventLabel: 'The letter q' }],
-          [Modifiers(['Shift']), { keyEvent: 'Q', keyEventLabel: 'Q' }],
-        ]),
+        keys: [
+          {
+            keyCode: 'AD01',
+            width: 15,
+            relativeWidth: 0.75,
+            relativeMarginLeft: 0,
+            keyCap: new DeepMap([
+              [Modifiers(), { keyEvent: 'q', keyEventLabel: 'The letter q' }],
+              [Modifiers(['Shift']), { keyEvent: 'Q', keyEventLabel: 'Q' }],
+            ]),
+          },
+        ],
       },
     ];
 
@@ -81,77 +91,87 @@ describe('makeKeyboardWithBindings', () => {
 
     const expectedKeyboardWithBindings: KeyboardWithBindings = [
       {
-        keyCode: 'AE01',
-        shape: new Rectangle([[0, 10], [20, 30]]),
-        relativeWidth: new Rectangle([[0, 0.2], [0.5, 0.6]]),
-        bindings: new DeepMap<Modifiers, PhysicalKeyBinding>([
-          [
-            Modifiers(),
-            {
-              keyEvent: '1',
-              keyEventLabel: '1',
-              keyEventModifiers: Modifiers(),
-              binding: '1',
-              bindingLabel: '1',
-            },
-          ],
-          [
-            Modifiers(['Shift', 'Control']),
-            [
-              {
-                keyEvent: '!',
-                keyEventLabel: '!',
-                keyEventModifiers: Modifiers(['Control']),
-                binding: 'control-!',
-                bindingLabel: 'control-!',
-              },
-              {
-                keyEvent: '@',
-                keyEventLabel: '@',
-                keyEventModifiers: Modifiers(['Shift']),
-                binding: 'shift-@',
-                bindingLabel: 'shift-@',
-              },
-            ],
-          ],
-        ]),
+        keys: [
+          {
+            keyCode: 'AE01',
+            width: 20,
+            relativeWidth: 1,
+            relativeMarginLeft: 0,
+            bindings: new DeepMap<Modifiers, PhysicalKeyBinding>([
+              [
+                Modifiers(),
+                {
+                  keyEvent: '1',
+                  keyEventLabel: '1',
+                  keyEventModifiers: Modifiers(),
+                  binding: '1',
+                  bindingLabel: '1',
+                },
+              ],
+              [
+                Modifiers(['Shift', 'Control']),
+                [
+                  {
+                    keyEvent: '!',
+                    keyEventLabel: '!',
+                    keyEventModifiers: Modifiers(['Control']),
+                    binding: 'control-!',
+                    bindingLabel: 'control-!',
+                  },
+                  {
+                    keyEvent: '@',
+                    keyEventLabel: '@',
+                    keyEventModifiers: Modifiers(['Shift']),
+                    binding: 'shift-@',
+                    bindingLabel: 'shift-@',
+                  },
+                ],
+              ],
+            ]),
+          },
+        ],
       },
       {
-        keyCode: 'AD01',
-        shape: new Rectangle([[25, 35], [40, 50]]),
-        relativeWidth: new Rectangle([[0.625, 0.7], [1, 1]]),
-        bindings: new DeepMap<Modifiers, PhysicalKeyBinding>([
-          [
-            Modifiers(),
-            {
-              keyEvent: 'q',
-              keyEventLabel: 'The letter q',
-              keyEventModifiers: Modifiers(),
-              binding: 'q',
-              bindingLabel: 'lowercase q binding',
-            },
-          ],
-          [
-            Modifiers(['Shift']),
-            {
-              keyEvent: 'Q',
-              keyEventLabel: 'Q',
-              keyEventModifiers: Modifiers(),
-              binding: 'Q',
-              bindingLabel: 'uppercase q binding',
-            },
-          ],
-          [
-            Modifiers(['Control', 'Shift']),
-            {
-              keyEvent: 'Q',
-              keyEventLabel: 'Q',
-              keyEventModifiers: Modifiers(['Control']),
-              binding: 'control-Q',
-              bindingLabel: 'control-Q',
-            },
-          ],
-        ]),
+        keys: [
+          {
+            keyCode: 'AD01',
+            width: 15,
+            relativeWidth: 0.75,
+            relativeMarginLeft: 0,
+            bindings: new DeepMap<Modifiers, PhysicalKeyBinding>([
+              [
+                Modifiers(),
+                {
+                  keyEvent: 'q',
+                  keyEventLabel: 'The letter q',
+                  keyEventModifiers: Modifiers(),
+                  binding: 'q',
+                  bindingLabel: 'lowercase q binding',
+                },
+              ],
+              [
+                Modifiers(['Shift']),
+                {
+                  keyEvent: 'Q',
+                  keyEventLabel: 'Q',
+                  keyEventModifiers: Modifiers(),
+                  binding: 'Q',
+                  bindingLabel: 'uppercase q binding',
+                },
+              ],
+              [
+                Modifiers(['Control', 'Shift']),
+                {
+                  keyEvent: 'Q',
+                  keyEventLabel: 'Q',
+                  keyEventModifiers: Modifiers(['Control']),
+                  binding: 'control-Q',
+                  bindingLabel: 'control-Q',
+                },
+              ],
+            ]),
+          },
+        ],
       },
     ];
 

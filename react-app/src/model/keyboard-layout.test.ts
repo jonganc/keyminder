@@ -1,12 +1,21 @@
 import { KeyEvent, KeyEventLabels, Modifiers } from './key-bindings';
 import { Geometry, Keyboard, Layout, makeKeyboard } from './keyboard-layout';
-import { DeepMap, Rectangle } from './types';
+import { DeepMap } from './types';
 
 describe('makeKeyboard', () => {
   it('should make a Keyboard', () => {
     const geometry: Geometry = [
-      { keyCode: 'AE01', shape: new Rectangle([[0, 10], [20, 30]]) },
-      { keyCode: 'AD01', shape: new Rectangle([[25, 35], [40, 50]]) },
+      {
+        keys: [
+          { keyCode: 'AE01', width: 20 },
+          { keyCode: 'AE02', width: 20, marginLeft: 10 },
+        ],
+        marginBottom: 5,
+      },
+      {
+        keys: [{ keyCode: 'AD01', width: 15 }],
+        marginBottom: 10,
+      },
     ];
 
     const layout: Layout = new Map([
@@ -17,6 +26,8 @@ describe('makeKeyboard', () => {
           [Modifiers(['Shift']), '!'],
         ]),
       ],
+      ['AE02', new DeepMap<Modifiers, KeyEvent>([[Modifiers(), '2']])],
+
       [
         'AD01',
         new DeepMap<Modifiers, KeyEvent>([
@@ -28,40 +39,49 @@ describe('makeKeyboard', () => {
     const keyEventLabels: KeyEventLabels = new Map([['q', 'The letter q']]);
     const keyboard = makeKeyboard({ geometry, layout, keyEventLabels });
 
-    const aN = expect.any(Number);
-
-    const expectedKeyboard: Keyboard = expect.arrayContaining([
+    const expectedKeyboard = expect.arrayContaining([
       {
-        keyCode: 'AE01',
-        shape: new Rectangle([[0, 10], [20, 30]]),
-        relativeShape: new Rectangle([[0, aN], [aN, aN]]),
-        keyCap: new DeepMap([
-          [Modifiers(), { keyEvent: '1', keyEventLabel: '1' }],
-          [Modifiers(['Shift']), { keyEvent: '!', keyEventLabel: '!' }],
-        ]),
+        keys: [
+          {
+            keyCode: 'AE01',
+            width: 20,
+            relativeWidth: 0.4,
+            relativeMarginLeft: 0,
+            keyCap: new DeepMap([
+              [Modifiers(), { keyEvent: '1', keyEventLabel: '1' }],
+              [Modifiers(['Shift']), { keyEvent: '!', keyEventLabel: '!' }],
+            ]),
+          },
+          {
+            keyCode: 'AE02',
+            width: 20,
+            marginLeft: 10,
+            relativeWidth: 0.4,
+            relativeMarginLeft: 0.2,
+            keyCap: new DeepMap([
+              [Modifiers(), { keyEvent: '2', keyEventLabel: '2' }],
+            ]),
+          },
+        ],
+        marginBottom: 5,
       },
       {
-        keyCode: 'AD01',
-        shape: new Rectangle([[25, 35], [40, 50]]),
-        relativeShape: new Rectangle([[aN, aN], [1, 1]]),
-        keyCap: new DeepMap([
-          [Modifiers(), { keyEvent: 'q', keyEventLabel: 'The letter q' }],
-          [Modifiers(['Shift']), { keyEvent: 'Q', keyEventLabel: 'Q' }],
-        ]),
+        keys: [
+          {
+            keyCode: 'AD01',
+            width: 15,
+            relativeWidth: 0.3,
+            relativeMarginLeft: 0,
+            keyCap: new DeepMap([
+              [Modifiers(), { keyEvent: 'q', keyEventLabel: 'The letter q' }],
+              [Modifiers(['Shift']), { keyEvent: 'Q', keyEventLabel: 'Q' }],
+            ]),
+          },
+        ],
+        marginBottom: 10,
       },
-    ]);
+    ] as Keyboard);
 
-    expect(keyboard).toEqual(expectedKeyboard);
-
-    // let's fully check one of the relative shapes
-    const ae01RS = keyboard.find(key => key.keyCode === 'AE01')!.relativeWidth
-      .points;
-    for (const [actual, expected] of [
-      [ae01RS[0][1], 0.2],
-      [ae01RS[1][0], 0.5],
-      [ae01RS[1][1], 0.6],
-    ]) {
-      expect(actual).toBeCloseTo(expected, 7);
-    }
+    expect(keyboard).toEqualExtended(expectedKeyboard, 5);
   });
 });

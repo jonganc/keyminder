@@ -53,6 +53,8 @@ Since different keyboards layouts (e.g. different languages or Qwerty vs. Dvorak
 
 We use the same codes as in XWindows, which are all 4-letter strings, e.g. "TLDE" for (the standard location of) the '~' character, "AE01" for the '1' key, "AD01" for the 'q' key.
 
+For example, /usr/share/X11/xkb/geometry/pc on Ubuntu 18.04 gives the keycodes of the keys.
+
 [In text, we refer to a key code in quotes, e.g. "AE01"]
 
 ### key-event (KeyEvent)

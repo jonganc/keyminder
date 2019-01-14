@@ -12,4 +12,12 @@ describe('toEqualExtended', () => {
       new DeepMap<any, number>([[new Set([1, 2]), 2], [2, 3]]),
     ).toEqualExtended(new DeepMap<any, number>([[2, 3], [new Set([2, 1]), 2]]));
   });
+
+  it('should find two close numeric values to be the same when digits is given', () => {
+    expect([1]).toEqualExtended([1.01], 1);
+  });
+
+  it('should find far numeric values to be the same when digits is given', () => {
+    expect([1]).not.toEqualExtended([1.11], 1);
+  });
 });
