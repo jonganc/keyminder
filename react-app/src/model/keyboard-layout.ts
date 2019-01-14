@@ -1,6 +1,6 @@
 import l_ from 'lodash';
 import { KeyEvent, KeyEventLabels, Modifiers } from './key-bindings';
-import { DeepMap, Labelapp } from './types';
+import { DeepMap, Labelapp, Label } from './types';
 
 export type KeyCode = string;
 
@@ -28,16 +28,12 @@ export interface KeyRow {
  */
 export type Geometry = KeyRow[];
 
-export interface LabeledKeyEvent {
-  keyEvent: KeyEvent;
-  keyEventLabel: Label;
+export interface KeyCap {
+  label: Label;
+  keyEvents: DeepMap<Modifiers, KeyEvent>;
 }
 
-export type KeyCap = DeepMap<Modifiers, KeyEvent>;
-
 export type Layout = Map<KeyCode, KeyCap>;
-
-export type LabeledKeyCap = DeepMap<Modifiers, LabeledKeyEvent>;
 
 /**
  * For purposes of displaying the key, we convert the width to units out of 1 (i.e. 0.3 is 30% of full width)
@@ -54,7 +50,7 @@ export interface KeyRowForRendering extends KeyRow {
 type GeometryForRendering = KeyRowForRendering[];
 
 interface PhysicalKey extends VirtualKeyForRendering {
-  keyCap: LabeledKeyCap;
+  keyCap?: KeyCap;
 }
 
 export interface PhysicalRow extends KeyRowForRendering {
@@ -93,19 +89,8 @@ function makeGeometryForRendering(geometry: Geometry): GeometryForRendering {
   }));
 }
 
-export function makeKeyboard({
-  geometry,
-  layout,
-  keyEventLabels,
-}: {
-  geometry: Geometry;
-  layout: Layout;
-  keyEventLabels?: KeyEventLabels;
-}): Keyboard {
+export function makeKeyboard(geometry: Geometry, layout: Layout): Keyboard {
   const geometryForRendering = makeGeometryForRendering(geometry);
-
-  const theKeyEventLabels =
-    keyEventLabels === undefined ? new Map() : keyEventLabels;
 
   return geometryForRendering.map(keyRowForRendering => ({
     ...keyRowForRendering,

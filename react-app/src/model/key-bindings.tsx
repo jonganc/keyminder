@@ -9,8 +9,6 @@ import { DeepMap, Label } from './types';
 //
 export type KeyEvent = string;
 
-export type KeyEventLabels = Map<KeyEvent, Label>;
-
 export type Modifier =
   | 'Control'
   | 'Alt'
