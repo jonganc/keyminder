@@ -1,4 +1,5 @@
 import { DeepMap, Label } from './types';
+import { ReactChild } from 'react';
 
 /**
  * the most basic unit of a key sequence, e.g. "A" or "PageUp", and which can be modified with modifiers like "Shift" or "Control"
@@ -31,7 +32,7 @@ export function Modifiers(modifiers?: Modifier[]) {
  */
 export const modifierDisplays: {
   [key in Modifier]:
-    | { display: string; order: number }
+    | { display: Label; order: number }
     | { display: null; order?: undefined }
 } = {
   Control: { display: 'C', order: 10 },
@@ -43,6 +44,21 @@ export const modifierDisplays: {
   Meta: { display: 'M', order: 60 },
   Hyper: { display: 'H', order: 70 },
 };
+
+function modifierCompare(mod1: Modifier, mod2: Modifier): boolean {
+  if (modifierDisplays[mod2].display === null) {
+    return true;
+  }
+  return modifierDisplays[mod1].order;
+}
+
+class PrintModifiers extends React.Component<{ modifiers: Modifiers }> {
+  render() {}
+}
+
+function printModifiers(modifiers: Modifiers): ReactChild {
+  return;
+}
 
 export interface ModdedKeyEvent {
   keyEvent: KeyEvent;

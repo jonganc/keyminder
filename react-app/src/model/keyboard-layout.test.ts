@@ -1,5 +1,12 @@
-import { KeyEvent, KeyEventLabels, Modifiers } from './key-bindings';
-import { Geometry, Keyboard, Layout, makeKeyboard } from './keyboard-layout';
+import { KeyEvent, Modifiers } from './key-bindings';
+import {
+  Geometry,
+  Keyboard,
+  KeyCap,
+  KeyCode,
+  Layout,
+  makeKeyboard,
+} from './keyboard-layout';
 import { DeepMap } from './types';
 
 describe('makeKeyboard', () => {
@@ -18,26 +25,37 @@ describe('makeKeyboard', () => {
       },
     ];
 
-    const layout: Layout = new Map([
+    const layout: Layout = new Map<KeyCode, KeyCap>([
       [
         'AE01',
-        new DeepMap<Modifiers, KeyEvent>([
-          [Modifiers(), '1'],
-          [Modifiers(['Shift']), '!'],
-        ]),
+        {
+          label: '1',
+          keyEvents: new DeepMap<Modifiers, KeyEvent>([
+            [Modifiers(), '1'],
+            [Modifiers(['Shift']), '!'],
+          ]),
+        },
       ],
-      ['AE02', new DeepMap<Modifiers, KeyEvent>([[Modifiers(), '2']])],
+      [
+        'AE02',
+        {
+          label: '2',
+          keyEvents: new DeepMap<Modifiers, KeyEvent>([[Modifiers(), '2']]),
+        },
+      ],
 
       [
         'AD01',
-        new DeepMap<Modifiers, KeyEvent>([
-          [Modifiers(), 'q'],
-          [Modifiers(['Shift']), 'Q'],
-        ]),
+        {
+          label: 'q',
+          keyEvents: new DeepMap<Modifiers, KeyEvent>([
+            [Modifiers(), 'q'],
+            [Modifiers(['Shift']), 'Q'],
+          ]),
+        },
       ],
     ]);
-    const keyEventLabels: KeyEventLabels = new Map([['q', 'The letter q']]);
-    const keyboard = makeKeyboard({ geometry, layout, keyEventLabels });
+    const keyboard = makeKeyboard(geometry, layout);
 
     const expectedKeyboard = expect.arrayContaining([
       {
@@ -47,10 +65,13 @@ describe('makeKeyboard', () => {
             width: 20,
             relativeWidth: 0.4,
             relativeMarginLeft: 0,
-            keyCap: new DeepMap([
-              [Modifiers(), { keyEvent: '1', keyEventLabel: '1' }],
-              [Modifiers(['Shift']), { keyEvent: '!', keyEventLabel: '!' }],
-            ]),
+            keyCap: {
+              label: '1',
+              keyEvents: new DeepMap([
+                [Modifiers(), '1'],
+                [Modifiers(['Shift']), '!'],
+              ]),
+            },
           },
           {
             keyCode: 'AE02',
@@ -58,9 +79,10 @@ describe('makeKeyboard', () => {
             marginLeft: 10,
             relativeWidth: 0.4,
             relativeMarginLeft: 0.2,
-            keyCap: new DeepMap([
-              [Modifiers(), { keyEvent: '2', keyEventLabel: '2' }],
-            ]),
+            keyCap: {
+              label: '2',
+              keyEvents: new DeepMap([[Modifiers(), '2']]),
+            },
           },
         ],
         marginBottom: 5,
@@ -72,10 +94,13 @@ describe('makeKeyboard', () => {
             width: 15,
             relativeWidth: 0.3,
             relativeMarginLeft: 0,
-            keyCap: new DeepMap([
-              [Modifiers(), { keyEvent: 'q', keyEventLabel: 'The letter q' }],
-              [Modifiers(['Shift']), { keyEvent: 'Q', keyEventLabel: 'Q' }],
-            ]),
+            keyCap: {
+              label: 'q',
+              keyEvents: new DeepMap([
+                [Modifiers(), 'q'],
+                [Modifiers(['Shift']), 'Q'],
+              ]),
+            },
           },
         ],
         marginBottom: 10,

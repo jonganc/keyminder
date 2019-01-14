@@ -1,6 +1,6 @@
 import l_ from 'lodash';
-import { KeyEvent, KeyEventLabels, Modifiers } from './key-bindings';
-import { DeepMap, Labelapp, Label } from './types';
+import { KeyEvent, Modifiers } from './key-bindings';
+import { DeepMap, Label } from './types';
 
 export type KeyCode = string;
 
@@ -50,7 +50,7 @@ export interface KeyRowForRendering extends KeyRow {
 type GeometryForRendering = KeyRowForRendering[];
 
 interface PhysicalKey extends VirtualKeyForRendering {
-  keyCap?: KeyCap;
+  keyCap: KeyCap;
 }
 
 export interface PhysicalRow extends KeyRowForRendering {
@@ -99,28 +99,14 @@ export function makeKeyboard(geometry: Geometry, layout: Layout): Keyboard {
         const keyCap = layout.get(virtualKeyForRendering.keyCode);
 
         if (keyCap === undefined) {
-          return undefined;
+          throw new Error(
+            `keyCode ${virtualKeyForRendering.keyCode} not found in layout`,
+          );
         }
-
-        const labeledKeyCapPairs = [...keyCap.entries()].map(
-          ([modifiers, keyEvent]) => {
-            const keyEventLabel = theKeyEventLabels.get(keyEvent);
-            if (keyEventLabel === undefined) {
-              return [modifiers, { keyEvent, keyEventLabel: keyEvent }] as [
-                Modifiers,
-                LabeledKeyEvent
-              ];
-            }
-            return [modifiers, { keyEvent, keyEventLabel }] as [
-              Modifiers,
-              LabeledKeyEvent
-            ];
-          },
-        );
 
         return {
           ...virtualKeyForRendering,
-          keyCap: new DeepMap(labeledKeyCapPairs),
+          keyCap,
         };
       })
       .filter((vk => vk !== undefined) as <T>(val: T | undefined) => val is T),
