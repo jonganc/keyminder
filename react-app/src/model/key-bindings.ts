@@ -1,5 +1,4 @@
 import { DeepMap, Label } from './types';
-import { ReactChild } from 'react';
 
 /**
  * the most basic unit of a key sequence, e.g. "A" or "PageUp", and which can be modified with modifiers like "Shift" or "Control"
@@ -25,41 +24,6 @@ export function Modifiers(modifiers?: Modifier[]) {
   return new Set(modifiers);
 }
 
-/**
- * modifiers and how to display them, by default
- * @param display what to display for the shortened form, as html. null to indicate no default form
- * @param order The relative order,lowest first.
- */
-export const modifierDisplays: {
-  [key in Modifier]:
-    | { display: Label; order: number }
-    | { display: null; order?: undefined }
-} = {
-  Control: { display: 'C', order: 10 },
-  Alt: { display: 'A', order: 20 },
-  Shift: { display: '&#x21E7;', order: 30 }, // ⇧
-  NumLock: { display: null },
-  Win: { display: 'Win', order: 40 },
-  Super: { display: 'S', order: 50 },
-  Meta: { display: 'M', order: 60 },
-  Hyper: { display: 'H', order: 70 },
-};
-
-function modifierCompare(mod1: Modifier, mod2: Modifier): boolean {
-  if (modifierDisplays[mod2].display === null) {
-    return true;
-  }
-  return modifierDisplays[mod1].order;
-}
-
-class PrintModifiers extends React.Component<{ modifiers: Modifiers }> {
-  render() {}
-}
-
-function printModifiers(modifiers: Modifiers): ReactChild {
-  return;
-}
-
 export interface ModdedKeyEvent {
   keyEvent: KeyEvent;
   modifiers: Modifiers;
@@ -69,13 +33,13 @@ export type Binding = string | KeyMap;
 
 export interface KeyMap {
   bindings: DeepMap<ModdedKeyEvent, Binding>;
-  name?: string;
+  keyMapName?: string;
 }
 
 export class KeyMapByEvent {
   constructor(
     public readonly bindings: Map<KeyEvent, DeepMap<Modifiers, BindingByEvent>>,
-    public readonly name?: string,
+    public readonly keyMapName?: string,
   ) {}
 }
 
@@ -89,7 +53,7 @@ export type BindingLabels = Map<string, Label>;
 export type KeySequence = ModdedKeyEvent[];
 
 export function makeKeyMapByEvent(keyMap: KeyMap): KeyMapByEvent {
-  const { name, bindings: fullBindings } = keyMap;
+  const { keyMapName, bindings: fullBindings } = keyMap;
   const fullBindingsByEvent = new Map<
     KeyEvent,
     DeepMap<Modifiers, BindingByEvent>
@@ -111,5 +75,5 @@ export function makeKeyMapByEvent(keyMap: KeyMap): KeyMapByEvent {
     }
   });
 
-  return { name, bindings: fullBindingsByEvent };
+  return { keyMapName, bindings: fullBindingsByEvent };
 }

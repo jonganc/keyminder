@@ -1,1 +1,2 @@
-console.log('abcdef');
+const foo = undefined;
+export default foo;

@@ -1,5 +1,10 @@
+import { configure } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 import jestDiff from 'jest-diff';
+import 'jest-enzyme';
 import { DeepMap } from './model/types';
+
+configure({ adapter: new Adapter() });
 
 function getDeepMapComparer(
   jestThis: jest.MatcherUtils,

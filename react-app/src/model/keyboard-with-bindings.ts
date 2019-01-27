@@ -9,16 +9,16 @@ import {
 } from './key-bindings';
 import {
   Keyboard,
+  KeyCap,
   KeyRowForRendering,
-  LabeledKeyCap,
-  LabeledKeyEvent,
   VirtualKeyForRendering,
 } from './keyboard-layout';
 import { DeepMap, doSetsIntersect, groupByDeep, Label } from './types';
 
 // combine key bindings and layouts into keyboards
 
-interface PhysicalKeyBindingSingle extends LabeledKeyEvent {
+interface PhysicalKeyBindingSingle {
+  keyEvent: KeyEvent;
   /**
    * The physical-key modifiers might be transformed to produce the key-event modifiers, which are what are actually used to determine the bindings. For completeness, we include the key-event modifiers. E.g. if we press Control-Shift-2, the key-event will be "@" and the physical-key modifiers will be [Control, Shift] but the key-event modifiers will just be [Control]. (It's mostly for informational purposes)
    */
@@ -47,6 +47,7 @@ export type PhysicalKeyBindings = DeepMap<Modifiers, PhysicalKeyBinding>;
  * A physical-key-with-bindings is a physical-key along with the bindings for any set of modifiers for which a binding is defined.
  */
 export interface PhysicalKeyWithBindings extends VirtualKeyForRendering {
+  keyCapLabel: Label;
   bindings: PhysicalKeyBindings;
 }
 
@@ -57,7 +58,12 @@ export interface PhysicalKeyWithBindingsRow extends KeyRowForRendering {
 /**
  * All keybindings immediately accessible from a particular state (i.e. a sequence of keys already pressed).
  */
-export type KeyboardWithBindings = PhysicalKeyWithBindingsRow[];
+export interface KeyboardWithBindings {
+  geometryName: string;
+  layoutName: string;
+  keyMapName?: string;
+  rows: PhysicalKeyWithBindingsRow[];
+}
 
 /**
  * Given a key event plus whatever modifiers were needed to reach it, find bindings that could be reached, possibly by including additional modifiers.
@@ -139,17 +145,17 @@ function mapKeyCapToPhysicalKeyBindings({
   keyMapByEvent,
   bindingLabels,
 }: {
-  keyCap: LabeledKeyCap;
+  keyCap: KeyCap;
   keyMapByEvent: KeyMapByEvent;
-  bindingLabels: BindingLabels;
+  bindingLabels?: BindingLabels;
 }): PhysicalKeyBindings {
   const rawBindingPairs: Array<
     [Modifiers, PhysicalKeyBindingSingle]
   > = l_.flatMap(
-    [...keyCap.entries()],
-    ([physicalModifiers, labeledKeyEvent]) => {
+    [...keyCap.keyEvents.entries()],
+    ([physicalModifiers, keyEvent]) => {
       const accessibleBindings = mapKeyEventWithModifiersToBindings({
-        keyEvent: labeledKeyEvent.keyEvent,
+        keyEvent,
         physicalModifiers,
         keyMapByEvent,
       });
@@ -160,11 +166,16 @@ function mapKeyCapToPhysicalKeyBindings({
             binding instanceof KeyMapByEvent
               ? // FIXME Ideally, this would be some React component, like () => (<div class="keymap-binding" />)... but I don't want this file to have to use TSX. Maybe I make some file with the React Code for this? Or I could allow an element of bindingLabels to be the symbol KeyMap or something and put the component there... Or I could just manually write out JSX in TypeScipt...
                 'keymap placeholder'
-              : l_.defaultTo(bindingLabels.get(binding), binding);
+              : l_.defaultTo(
+                  bindingLabels === undefined
+                    ? undefined
+                    : bindingLabels.get(binding),
+                  binding,
+                );
           return [
             fullPhysicalModifiers,
             {
-              ...labeledKeyEvent,
+              keyEvent,
               keyEventModifiers,
               binding,
               bindingLabel,
@@ -198,9 +209,9 @@ export function makeKeyboardWithBindings({
 }: {
   keyboard: Keyboard;
   keyMapByEvent: KeyMapByEvent;
-  bindingLabels: BindingLabels;
+  bindingLabels?: BindingLabels;
 }): KeyboardWithBindings {
-  return keyboard
+  const rows = keyboard.rows
     .map(physicalRow => ({
       keys: physicalRow.keys.map(physicalKey => {
         const { keyCap, ...virtualKey } = physicalKey;
@@ -213,9 +224,17 @@ export function makeKeyboardWithBindings({
 
         return {
           ...virtualKey,
+          keyCapLabel: physicalKey.keyCap.keyCapLabel,
           bindings,
         };
       }),
     }))
     .filter((key => key !== undefined) as <T>(key: T | undefined) => key is T);
+
+  return {
+    geometryName: keyboard.geometryName,
+    keyMapName: keyMapByEvent.keyMapName,
+    layoutName: keyboard.layoutName,
+    rows,
+  };
 }

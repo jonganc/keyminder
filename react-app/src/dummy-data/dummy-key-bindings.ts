@@ -11,7 +11,7 @@ const keyMap: KeyMap = {
     [{ keyEvent: 'q', modifiers: Modifiers() }, 'self-insert-command'],
     [{ keyEvent: 'w', modifiers: Modifiers() }, 'self-insert-command'],
     [{ keyEvent: 'e', modifiers: Modifiers() }, 'self-insert-command'],
-    [{ keyEvent: 'a', modifiers: Modifiers() }, 'self-insert-command'],
+    [{ keyEvent: 'a', modifiers: Modifiers() }, 'hi'],
     [{ keyEvent: 's', modifiers: Modifiers() }, 'self-insert-command'],
     [{ keyEvent: 'd', modifiers: Modifiers() }, 'self-insert-command'],
     [{ keyEvent: 'Q', modifiers: Modifiers() }, 'self-insert-command'],
@@ -20,7 +20,7 @@ const keyMap: KeyMap = {
     [{ keyEvent: 'A', modifiers: Modifiers() }, 'self-insert-command'],
     [{ keyEvent: 'S', modifiers: Modifiers() }, 'self-insert-command'],
     [{ keyEvent: 'D', modifiers: Modifiers() }, 'self-insert-command'],
-    [{ keyEvent: 'Return', modifiers: Modifiers() }, 'newline'],
+    [{ keyEvent: 'Enter', modifiers: Modifiers() }, 'newline'],
   ]),
 };
 

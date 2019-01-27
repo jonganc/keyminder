@@ -4,12 +4,7 @@ import { bindingLabels, keyboard, keyMapByEvent } from '../dummy-data';
 import Keyboard from './Keyboard';
 
 const styles = createStyles({
-  root: {
-    paddingTop: 80,
-    flex: '1 1 100%',
-    maxWidth: '100%',
-    margin: '0 auto',
-  },
+  root: {},
 });
 
 class Dummy extends Component<WithStyles<typeof styles>> {
@@ -20,6 +15,7 @@ class Dummy extends Component<WithStyles<typeof styles>> {
         keyboard={keyboard}
         keyMapByEvent={keyMapByEvent}
         bindingLabels={bindingLabels}
+        className={classes.root}
       />
     );
   }

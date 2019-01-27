@@ -14,37 +14,47 @@ import { DeepMap } from './types';
 
 describe('makeKeyboardWithBindings', () => {
   it('should make a KeyboardWithBindings', () => {
-    const keyboard: Keyboard = [
-      {
-        keys: [
-          {
-            keyCode: 'AE01',
-            width: 20,
-            relativeWidth: 1,
-            relativeMarginLeft: 0,
-            keyCap: new DeepMap([
-              [Modifiers(), { keyEvent: '1', keyEventLabel: '1' }],
-              [Modifiers(['Shift']), { keyEvent: '!', keyEventLabel: '!' }],
-              [Modifiers(['Control']), { keyEvent: '@', keyEventLabel: '@' }],
-            ]),
-          },
-        ],
-      },
-      {
-        keys: [
-          {
-            keyCode: 'AD01',
-            width: 15,
-            relativeWidth: 0.75,
-            relativeMarginLeft: 0,
-            keyCap: new DeepMap([
-              [Modifiers(), { keyEvent: 'q', keyEventLabel: 'The letter q' }],
-              [Modifiers(['Shift']), { keyEvent: 'Q', keyEventLabel: 'Q' }],
-            ]),
-          },
-        ],
-      },
-    ];
+    const keyboard: Keyboard = {
+      layoutName: 'test-layout',
+      geometryName: 'test-geometry',
+      rows: [
+        {
+          keys: [
+            {
+              keyCode: 'AE01',
+              width: 20,
+              relativeWidth: 1,
+              relativeMarginLeft: 0,
+              keyCap: {
+                keyCapLabel: '1',
+                keyEvents: new DeepMap([
+                  [Modifiers(), '1'],
+                  [Modifiers(['Shift']), '!'],
+                  [Modifiers(['Control']), '@'],
+                ]),
+              },
+            },
+          ],
+        },
+        {
+          keys: [
+            {
+              keyCode: 'AD01',
+              width: 15,
+              relativeWidth: 0.75,
+              relativeMarginLeft: 0,
+              keyCap: {
+                keyCapLabel: 'q',
+                keyEvents: new DeepMap([
+                  [Modifiers(), 'q'],
+                  [Modifiers(['Shift']), 'Q'],
+                ]),
+              },
+            },
+          ],
+        },
+      ],
+    };
 
     const keyMapByEvent = new KeyMapByEvent(
       new Map([
@@ -93,6 +103,7 @@ describe('makeKeyboardWithBindings', () => {
       {
         keys: [
           {
+            keyCapLabel: '1',
             keyCode: 'AE01',
             width: 20,
             relativeWidth: 1,
@@ -102,7 +113,6 @@ describe('makeKeyboardWithBindings', () => {
                 Modifiers(),
                 {
                   keyEvent: '1',
-                  keyEventLabel: '1',
                   keyEventModifiers: Modifiers(),
                   binding: '1',
                   bindingLabel: '1',
@@ -113,14 +123,12 @@ describe('makeKeyboardWithBindings', () => {
                 [
                   {
                     keyEvent: '!',
-                    keyEventLabel: '!',
                     keyEventModifiers: Modifiers(['Control']),
                     binding: 'control-!',
                     bindingLabel: 'control-!',
                   },
                   {
                     keyEvent: '@',
-                    keyEventLabel: '@',
                     keyEventModifiers: Modifiers(['Shift']),
                     binding: 'shift-@',
                     bindingLabel: 'shift-@',
@@ -134,6 +142,7 @@ describe('makeKeyboardWithBindings', () => {
       {
         keys: [
           {
+            keyCapLabel: 'q',
             keyCode: 'AD01',
             width: 15,
             relativeWidth: 0.75,
@@ -143,7 +152,6 @@ describe('makeKeyboardWithBindings', () => {
                 Modifiers(),
                 {
                   keyEvent: 'q',
-                  keyEventLabel: 'The letter q',
                   keyEventModifiers: Modifiers(),
                   binding: 'q',
                   bindingLabel: 'lowercase q binding',
@@ -153,7 +161,6 @@ describe('makeKeyboardWithBindings', () => {
                 Modifiers(['Shift']),
                 {
                   keyEvent: 'Q',
-                  keyEventLabel: 'Q',
                   keyEventModifiers: Modifiers(),
                   binding: 'Q',
                   bindingLabel: 'uppercase q binding',
@@ -163,7 +170,6 @@ describe('makeKeyboardWithBindings', () => {
                 Modifiers(['Control', 'Shift']),
                 {
                   keyEvent: 'Q',
-                  keyEventLabel: 'Q',
                   keyEventModifiers: Modifiers(['Control']),
                   binding: 'control-Q',
                   bindingLabel: 'control-Q',
