@@ -1,6 +1,6 @@
 import l_ from 'lodash';
 import { KeyEvent, Modifiers } from './key-bindings';
-import { DeepMap, Label } from './types';
+import { Label, ReadonlyDeepMap } from './types';
 
 export type KeyCode = string;
 
@@ -19,7 +19,7 @@ export interface VirtualKey {
 }
 
 export interface KeyRow {
-  readonly keys: VirtualKey[];
+  readonly keys: ReadonlyArray<VirtualKey>;
   readonly marginBottom?: number | string;
 }
 
@@ -28,7 +28,7 @@ export interface KeyRow {
  */
 export interface Geometry {
   readonly geometryName: string;
-  readonly rows: KeyRow[];
+  readonly rows: ReadonlyArray<KeyRow>;
 }
 
 export interface KeyCap {
@@ -36,12 +36,12 @@ export interface KeyCap {
    * Generally, the label from KeyEvent will be used but, occassionally, it might be helpful if the keyCap itself has a label
    */
   readonly keyCapLabel: Label;
-  readonly keyEvents: DeepMap<Modifiers, KeyEvent>;
+  readonly keyEvents: ReadonlyDeepMap<Modifiers, KeyEvent>;
 }
 
 export interface Layout {
   readonly layoutName: string;
-  readonly keyCaps: Map<KeyCode, KeyCap>;
+  readonly keyCaps: ReadonlyMap<KeyCode, KeyCap>;
 }
 
 /**
@@ -53,12 +53,12 @@ export interface VirtualKeyForRendering extends VirtualKey {
 }
 
 export interface KeyRowForRendering extends KeyRow {
-  readonly keys: VirtualKeyForRendering[];
+  readonly keys: ReadonlyArray<VirtualKeyForRendering>;
 }
 
 interface GeometryForRendering {
   readonly geometryName: string;
-  readonly rows: KeyRowForRendering[];
+  readonly rows: ReadonlyArray<KeyRowForRendering>;
 }
 
 interface PhysicalKey extends VirtualKeyForRendering {

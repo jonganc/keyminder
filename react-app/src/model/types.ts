@@ -148,6 +148,15 @@ export class DeepMap<K, V> implements Map<K, V> {
   }
 }
 
+export interface ReadonlyDeepMap<K, V>
+  extends Omit<DeepMap<K, V>, 'get' | 'set' | 'clear' | 'delete' | 'forEach'>,
+    ReadonlyMap<K, V> {
+  forEach(
+    callbackfn: (value: V, key: K, map: ReadonlyDeepMap<K, V>) => void,
+    thisArg?: any,
+  ): void;
+}
+
 /**
  * Like lodash's groupBy except that it groups using pairwise lodash isEqual
  */

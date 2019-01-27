@@ -13,7 +13,13 @@ import {
   KeyRowForRendering,
   VirtualKeyForRendering,
 } from './keyboard-layout';
-import { DeepMap, doSetsIntersect, groupByDeep, Label } from './types';
+import {
+  DeepMap,
+  doSetsIntersect,
+  groupByDeep,
+  Label,
+  ReadonlyDeepMap,
+} from './types';
 
 // combine key bindings and layouts into keyboards
 
@@ -37,7 +43,10 @@ export type PhysicalKeyBinding =
   | PhysicalKeyBindingSingle
   | PhysicalKeyBindingConflicting;
 
-export type PhysicalKeyBindings = DeepMap<Modifiers, PhysicalKeyBinding>;
+export type PhysicalKeyBindings = ReadonlyDeepMap<
+  Modifiers,
+  PhysicalKeyBinding
+>;
 
 /**
  * A physical-key-with-bindings is a physical-key along with the bindings for any set of modifiers for which a binding is defined.
@@ -48,7 +57,7 @@ export interface PhysicalKeyWithBindings extends VirtualKeyForRendering {
 }
 
 export interface PhysicalKeyWithBindingsRow extends KeyRowForRendering {
-  readonly keys: PhysicalKeyWithBindings[];
+  readonly keys: ReadonlyArray<PhysicalKeyWithBindings>;
 }
 
 /**
@@ -58,7 +67,7 @@ export interface KeyboardWithBindings {
   readonly geometryName: string;
   readonly layoutName: string;
   readonly keyMapName?: string;
-  readonly rows: PhysicalKeyWithBindingsRow[];
+  readonly rows: ReadonlyArray<PhysicalKeyWithBindingsRow>;
 }
 
 /**
@@ -227,10 +236,10 @@ export function makeKeyboardWithBindings({
     }))
     .filter((key => key !== undefined) as <T>(key: T | undefined) => key is T);
 
-  return new KeyboardWithBindings({
+  return {
     geometryName: keyboard.geometryName,
     keyMapName: keyMapByEvent.keyMapName,
     layoutName: keyboard.layoutName,
     rows,
-  });
+  };
 }
