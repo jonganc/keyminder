@@ -1,4 +1,5 @@
 import l_ from 'lodash';
+import { observable } from 'mobx';
 import { KeyEvent, Modifiers } from './key-bindings';
 import { DeepMap, Label } from './types';
 
@@ -6,27 +7,52 @@ export type KeyCode = string;
 
 export type Point = [number, number];
 
-/**
+/*
  * a virtual key, representing the size and location of a physical key and which keycode it represents
  */
-export interface VirtualKey {
-  keyCode: KeyCode;
-  width: number;
+export class VirtualKey {
+  readonly keyCode!: KeyCode;
+  @observable width!: number;
   /**
    * the left margin of the key, in the same units as the width
    */
-  marginLeft?: number;
+  @observable marginLeft?: number;
+
+  constructor(input: VirtualKey) {
+    Object.assign(this, input);
+  }
 }
 
-export interface KeyRow {
-  keys: VirtualKey[];
-  marginBottom?: number | string;
+export class KeyRow {
+  public static fromRaw({ keys, marginBottom }: KeyRow): KeyRow {
+    if (keys.some(rawVirtualKey => rawVirtualKey instanceof KeyRow)) {
+      throw new Error(
+        "All key's passed to KeyRow constructor must not be instances of VirtualKey",
+      );
+    }
+    return new KeyRow({
+      keys: keys.map(rawVirtualKey => new VirtualKey(rawVirtualKey)),
+      marginBottom,
+    });
+  }
+
+  @observable keys!: VirtualKey[];
+  @observable marginBottom?: number | string;
+
+  constructor(input: KeyRow) {
+    if (input.keys.some(virtualKey => !(virtualKey instanceof KeyRow))) {
+      throw new Error(
+        "All key's passed to KeyRow constructor must be instances of VirtualKey",
+      );
+    }
+    Object.assign(this, input);
+  }
 }
 
 /**
  * the geometry of a keyboard type, e.g. the generic geometry of 105-key keyboard
  */
-export interface Geometry {
+export class Geometry {
   geometryName: string;
   rows: KeyRow[];
 }
