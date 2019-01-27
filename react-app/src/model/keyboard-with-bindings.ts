@@ -1,5 +1,4 @@
 import l_ from 'lodash';
-import { observable } from 'mobx';
 import {
   Binding,
   BindingByEvent,
@@ -14,13 +13,7 @@ import {
   KeyRowForRendering,
   VirtualKeyForRendering,
 } from './keyboard-layout';
-import {
-  DeepMap,
-  doSetsIntersect,
-  groupByDeep,
-  Label,
-  shouldNotBeInstance,
-} from './types';
+import { DeepMap, doSetsIntersect, groupByDeep, Label } from './types';
 
 // combine key bindings and layouts into keyboards
 
@@ -61,16 +54,11 @@ export interface PhysicalKeyWithBindingsRow extends KeyRowForRendering {
 /**
  * All keybindings immediately accessible from a particular state (i.e. a sequence of keys already pressed).
  */
-export class KeyboardWithBindings {
-  readonly geometryName!: string;
-  readonly layoutName!: string;
-  @observable keyMapName?: string;
-  readonly rows!: PhysicalKeyWithBindingsRow[];
-
-  constructor(input: KeyboardWithBindings) {
-    shouldNotBeInstance(KeyboardWithBindings, input);
-    Object.assign(this, input);
-  }
+export interface KeyboardWithBindings {
+  readonly geometryName: string;
+  readonly layoutName: string;
+  readonly keyMapName?: string;
+  readonly rows: PhysicalKeyWithBindingsRow[];
 }
 
 /**

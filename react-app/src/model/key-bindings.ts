@@ -1,5 +1,5 @@
 import { observable, ObservableMap } from 'mobx';
-import { DeepMap, Label, shouldNotBeInstance } from './types';
+import { DeepMap, Label } from './types';
 
 /**
  * the most basic unit of a key sequence, e.g. "A" or "PageUp", and which can be modified with modifiers like "Shift" or "Control"
@@ -32,27 +32,16 @@ export interface ModdedKeyEvent {
 
 export type Binding = string | KeyMap;
 
-export class KeyMap {
-  readonly bindings!: DeepMap<ModdedKeyEvent, Binding>;
-  @observable keyMapName?: string;
-
-  constructor(input: KeyMap) {
-    shouldNotBeInstance(KeyMap, input);
-    Object.assign(this, input);
-  }
+export interface KeyMap {
+  readonly bindings: DeepMap<ModdedKeyEvent, Binding>;
+  readonly keyMapName?: string;
 }
 
 export class KeyMapByEvent {
-  readonly bindings!: ObservableMap<
-    KeyEvent,
-    DeepMap<Modifiers, BindingByEvent>
-  >;
-  @observable keyMapName?: string;
-
-  constructor(input: KeyMapByEvent) {
-    shouldNotBeInstance(KeyMapByEvent, input);
-    Object.assign(this, input);
-  }
+  constructor(
+    public readonly bindings: Map<KeyEvent, DeepMap<Modifiers, BindingByEvent>>,
+    public readonly keyMapName?: string,
+  ) {}
 }
 
 export type BindingByEvent = string | KeyMapByEvent;
@@ -87,5 +76,5 @@ export function makeKeyMapByEvent(keyMap: KeyMap): KeyMapByEvent {
     }
   });
 
-  return new KeyMapByEvent({ keyMapName, bindings: fullBindingsByEvent });
+  return { keyMapName, bindings: fullBindingsByEvent };
 }
