@@ -1,5 +1,4 @@
 import l_ from 'lodash';
-import { observable } from 'mobx';
 import { KeyEvent, Modifiers } from './key-bindings';
 import { DeepMap, Label } from './types';
 
@@ -7,92 +6,67 @@ export type KeyCode = string;
 
 export type Point = [number, number];
 
-/*
+/**
  * a virtual key, representing the size and location of a physical key and which keycode it represents
  */
-export class VirtualKey {
-  readonly keyCode!: KeyCode;
-  @observable width!: number;
+export interface VirtualKey {
+  readonly keyCode: KeyCode;
+  readonly width: number;
   /**
    * the left margin of the key, in the same units as the width
    */
-  @observable marginLeft?: number;
-
-  constructor(input: VirtualKey) {
-    Object.assign(this, input);
-  }
+  readonly marginLeft?: number;
 }
 
-export class KeyRow {
-  public static fromRaw({ keys, marginBottom }: KeyRow): KeyRow {
-    if (keys.some(rawVirtualKey => rawVirtualKey instanceof KeyRow)) {
-      throw new Error(
-        "All key's passed to KeyRow constructor must not be instances of VirtualKey",
-      );
-    }
-    return new KeyRow({
-      keys: keys.map(rawVirtualKey => new VirtualKey(rawVirtualKey)),
-      marginBottom,
-    });
-  }
-
-  @observable keys!: VirtualKey[];
-  @observable marginBottom?: number | string;
-
-  constructor(input: KeyRow) {
-    if (input.keys.some(virtualKey => !(virtualKey instanceof KeyRow))) {
-      throw new Error(
-        "All key's passed to KeyRow constructor must be instances of VirtualKey",
-      );
-    }
-    Object.assign(this, input);
-  }
+export interface KeyRow {
+  readonly keys: VirtualKey[];
+  readonly marginBottom?: number | string;
 }
 
 /**
  * the geometry of a keyboard type, e.g. the generic geometry of 105-key keyboard
  */
-export class Geometry {
-  geometryName: string;
-  rows: KeyRow[];
+export interface Geometry {
+  readonly geometryName: string;
+  readonly rows: KeyRow[];
 }
 
 export interface KeyCap {
   /**
    * Generally, the label from KeyEvent will be used but, occassionally, it might be helpful if the keyCap itself has a label
    */
-  keyCapLabel: Label;
-  keyEvents: DeepMap<Modifiers, KeyEvent>;
+  readonly keyCapLabel: Label;
+  readonly keyEvents: DeepMap<Modifiers, KeyEvent>;
 }
 
 export interface Layout {
-  layoutName: string;
-  keyCaps: Map<KeyCode, KeyCap>;
+  readonly layoutName: string;
+  readonly keyCaps: Map<KeyCode, KeyCap>;
 }
 
 /**
  * For purposes of displaying the key, we convert the width to units out of 1 (i.e. 0.3 is 30% of full width)
  */
 export interface VirtualKeyForRendering extends VirtualKey {
-  relativeMarginLeft: number;
-  relativeWidth: number;
+  readonly relativeMarginLeft: number;
+  readonly relativeWidth: number;
 }
 
 export interface KeyRowForRendering extends KeyRow {
-  keys: VirtualKeyForRendering[];
+  readonly keys: VirtualKeyForRendering[];
 }
 
 interface GeometryForRendering {
-  geometryName: string;
-  rows: KeyRowForRendering[];
+  readonly geometryName: string;
+  readonly rows: KeyRowForRendering[];
 }
 
 interface PhysicalKey extends VirtualKeyForRendering {
-  keyCap: KeyCap;
+  readonly keyCap: KeyCap;
 }
 
 export interface PhysicalRow extends KeyRowForRendering {
-  keys: PhysicalKey[];
+  readonly keys: PhysicalKey[];
 }
 
 /**
@@ -100,9 +74,9 @@ export interface PhysicalRow extends KeyRowForRendering {
  */
 // mainly an internal representation
 export interface Keyboard {
-  geometryName: string;
-  layoutName: string;
-  rows: PhysicalRow[];
+  readonly geometryName: string;
+  readonly layoutName: string;
+  readonly rows: PhysicalRow[];
 }
 
 function getKeyRowWidth(keyRow: KeyRow): number {

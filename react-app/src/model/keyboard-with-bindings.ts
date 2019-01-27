@@ -1,4 +1,5 @@
 import l_ from 'lodash';
+import { observable } from 'mobx';
 import {
   Binding,
   BindingByEvent,
@@ -13,26 +14,28 @@ import {
   KeyRowForRendering,
   VirtualKeyForRendering,
 } from './keyboard-layout';
-import { DeepMap, doSetsIntersect, groupByDeep, Label } from './types';
+import {
+  DeepMap,
+  doSetsIntersect,
+  groupByDeep,
+  Label,
+  shouldNotBeInstance,
+} from './types';
 
 // combine key bindings and layouts into keyboards
 
 interface PhysicalKeyBindingSingle {
-  keyEvent: KeyEvent;
+  readonly keyEvent: KeyEvent;
   /**
    * The physical-key modifiers might be transformed to produce the key-event modifiers, which are what are actually used to determine the bindings. For completeness, we include the key-event modifiers. E.g. if we press Control-Shift-2, the key-event will be "@" and the physical-key modifiers will be [Control, Shift] but the key-event modifiers will just be [Control]. (It's mostly for informational purposes)
    */
-  keyEventModifiers: Modifiers;
-  binding: Binding;
-  bindingLabel: Label;
+  readonly keyEventModifiers: Modifiers;
+  readonly binding: Binding;
+  readonly bindingLabel: Label;
 }
 
 // This corresponds to the case where multiple key bindings map to the same key sequence, which can happen if the physical key can generate multiple key events and there are bindings that overlap. For example, Shift-2 maps to "@". Now imagine that Control-2 were set to be translated to "!". Then the physical key press Control-Shift-2 would be bound to both Control-@ and Shift-! and they might both be bound. In practice, this won't often occur, since only Shift and Alt-Gr translate keys usually. But... it's not beyond the realm of possiblity so we have to allow for it.
-type PhysicalKeyBindingConflicting = [
-  PhysicalKeyBindingSingle,
-  PhysicalKeyBindingSingle,
-  ...PhysicalKeyBindingSingle[]
-];
+type PhysicalKeyBindingConflicting = ReadonlyArray<PhysicalKeyBindingSingle>;
 
 /**
  * A physical-key-binding specifies a binding for a physical key given a set of modifiers
@@ -47,22 +50,27 @@ export type PhysicalKeyBindings = DeepMap<Modifiers, PhysicalKeyBinding>;
  * A physical-key-with-bindings is a physical-key along with the bindings for any set of modifiers for which a binding is defined.
  */
 export interface PhysicalKeyWithBindings extends VirtualKeyForRendering {
-  keyCapLabel: Label;
-  bindings: PhysicalKeyBindings;
+  readonly keyCapLabel: Label;
+  readonly bindings: PhysicalKeyBindings;
 }
 
 export interface PhysicalKeyWithBindingsRow extends KeyRowForRendering {
-  keys: PhysicalKeyWithBindings[];
+  readonly keys: PhysicalKeyWithBindings[];
 }
 
 /**
  * All keybindings immediately accessible from a particular state (i.e. a sequence of keys already pressed).
  */
-export interface KeyboardWithBindings {
-  geometryName: string;
-  layoutName: string;
-  keyMapName?: string;
-  rows: PhysicalKeyWithBindingsRow[];
+export class KeyboardWithBindings {
+  readonly geometryName!: string;
+  readonly layoutName!: string;
+  @observable keyMapName?: string;
+  readonly rows!: PhysicalKeyWithBindingsRow[];
+
+  constructor(input: KeyboardWithBindings) {
+    shouldNotBeInstance(KeyboardWithBindings, input);
+    Object.assign(this, input);
+  }
 }
 
 /**
@@ -231,10 +239,10 @@ export function makeKeyboardWithBindings({
     }))
     .filter((key => key !== undefined) as <T>(key: T | undefined) => key is T);
 
-  return {
+  return new KeyboardWithBindings({
     geometryName: keyboard.geometryName,
     keyMapName: keyMapByEvent.keyMapName,
     layoutName: keyboard.layoutName,
     rows,
-  };
+  });
 }

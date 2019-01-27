@@ -1,4 +1,5 @@
 import l_ from 'lodash';
+import { IObservableArray, observable } from 'mobx';
 
 export type RawPoint = [number, number];
 
@@ -44,12 +45,16 @@ export class Rectangle {
 }
 
 /**
- * A map that uses (lodash's) l_.isEqual for determining key equality
+ * A map that uses (lodash's) l_.isEqual for determining key equality. The key should be treated as immutable or *bad things* might happen
  */
 export class DeepMap<K, V> implements Map<K, V> {
   readonly [Symbol.toStringTag]: string = 'DeepMap';
 
-  constructor(private _pairs: Array<[K, V]>) {}
+  private _pairs: IObservableArray<[K, V]>;
+
+  constructor(_pairs: Array<[K, V]>) {
+    this._pairs = observable.array<[K, V]>(_pairs);
+  }
 
   /** Returns an iterable of entries in the map. */
   *[Symbol.iterator](): IterableIterator<[K, V]> {
@@ -67,7 +72,7 @@ export class DeepMap<K, V> implements Map<K, V> {
   }
 
   clear(): void {
-    this._pairs = [];
+    this._pairs.clear();
   }
 
   delete(key: K): boolean {
@@ -181,11 +186,31 @@ export function setDifference<T>(set1: Set<T>, set2: Set<T>): Set<T> {
   return new Set<T>(l_.difference([...set1, ...set2]));
 }
 
-export function doSetsIntersect(set1: Set<any>, set2: Set<any>): boolean {
+export function doSetsIntersect(
+  set1: ReadonlySet<any>,
+  set2: ReadonlySet<any>,
+): boolean {
   for (const from1 of set1) {
     if (set2.has(from1)) {
       return true;
     }
   }
   return false;
+}
+
+/**
+ * Check that input is not an instance of class. This is useful because of the
+ */
+// tslint:disable-next-line:ban-types
+export function shouldNotBeInstance(cls: Function, input: any) {
+  if (input instanceof cls) {
+    throw new Error(`Input should not be an instance of ${cls.name}`);
+  }
+}
+
+// tslint:disable-next-line:ban-types
+export function shouldBeInstance(cls: Function, input: any) {
+  if (!(input instanceof cls)) {
+    throw new Error(`Input should be an instance of ${cls.name}`);
+  }
 }

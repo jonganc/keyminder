@@ -1,4 +1,5 @@
-import { DeepMap, Label } from './types';
+import { observable, ObservableMap } from 'mobx';
+import { DeepMap, Label, shouldNotBeInstance } from './types';
 
 /**
  * the most basic unit of a key sequence, e.g. "A" or "PageUp", and which can be modified with modifiers like "Shift" or "Control"
@@ -19,28 +20,39 @@ export type Modifier =
   | 'Meta'
   | 'Hyper';
 
-export type Modifiers = Set<Modifier>;
-export function Modifiers(modifiers?: Modifier[]) {
+export type Modifiers = ReadonlySet<Modifier>;
+export function Modifiers(modifiers?: Modifier[]): Modifiers {
   return new Set(modifiers);
 }
 
 export interface ModdedKeyEvent {
-  keyEvent: KeyEvent;
-  modifiers: Modifiers;
+  readonly keyEvent: KeyEvent;
+  readonly modifiers: Modifiers;
 }
 
 export type Binding = string | KeyMap;
 
-export interface KeyMap {
-  bindings: DeepMap<ModdedKeyEvent, Binding>;
-  keyMapName?: string;
+export class KeyMap {
+  readonly bindings!: DeepMap<ModdedKeyEvent, Binding>;
+  @observable keyMapName?: string;
+
+  constructor(input: KeyMap) {
+    shouldNotBeInstance(KeyMap, input);
+    Object.assign(this, input);
+  }
 }
 
 export class KeyMapByEvent {
-  constructor(
-    public readonly bindings: Map<KeyEvent, DeepMap<Modifiers, BindingByEvent>>,
-    public readonly keyMapName?: string,
-  ) {}
+  readonly bindings!: ObservableMap<
+    KeyEvent,
+    DeepMap<Modifiers, BindingByEvent>
+  >;
+  @observable keyMapName?: string;
+
+  constructor(input: KeyMapByEvent) {
+    shouldNotBeInstance(KeyMapByEvent, input);
+    Object.assign(this, input);
+  }
 }
 
 export type BindingByEvent = string | KeyMapByEvent;
@@ -48,13 +60,13 @@ export type BindingByEvent = string | KeyMapByEvent;
 /**
  * A way for bindings to be displayed via labels instead of the binding name
  */
-export type BindingLabels = Map<string, Label>;
+export type BindingLabels = ObservableMap<string, Label>;
 
-export type KeySequence = ModdedKeyEvent[];
+export type KeySequence = ReadonlyArray<ModdedKeyEvent>;
 
 export function makeKeyMapByEvent(keyMap: KeyMap): KeyMapByEvent {
   const { keyMapName, bindings: fullBindings } = keyMap;
-  const fullBindingsByEvent = new Map<
+  const fullBindingsByEvent = observable.map<
     KeyEvent,
     DeepMap<Modifiers, BindingByEvent>
   >([]);
@@ -75,5 +87,5 @@ export function makeKeyMapByEvent(keyMap: KeyMap): KeyMapByEvent {
     }
   });
 
-  return { keyMapName, bindings: fullBindingsByEvent };
+  return new KeyMapByEvent({ keyMapName, bindings: fullBindingsByEvent });
 }
