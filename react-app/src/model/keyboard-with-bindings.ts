@@ -8,7 +8,6 @@ import {
   Modifiers,
 } from './key-bindings';
 import {
-  Keyboard,
   KeyCap,
   KeyRowForRendering,
   VirtualKeyForRendering,
@@ -145,7 +144,7 @@ function processRawPhysicalKeyBindings(
 /**
  * Given a key cap, find the accessible physical key bindings, i.e. any key bindings which can be reached via a set of modifiers
  */
-function mapKeyCapToPhysicalKeyBindings({
+export function mapKeyCapToPhysicalKeyBindings({
   keyCap,
   keyMapByEvent,
   bindingLabels,
@@ -205,41 +204,4 @@ function mapKeyCapToPhysicalKeyBindings({
   });
 
   return new DeepMap(groupedBindingPairs);
-}
-
-export function makeKeyboardWithBindings({
-  keyboard,
-  keyMapByEvent,
-  bindingLabels,
-}: {
-  keyboard: Keyboard;
-  keyMapByEvent: KeyMapByEvent;
-  bindingLabels?: BindingLabels;
-}): KeyboardWithBindings {
-  const rows = keyboard.rows
-    .map(physicalRow => ({
-      keys: physicalRow.keys.map(physicalKey => {
-        const { keyCap, ...virtualKey } = physicalKey;
-
-        const bindings = mapKeyCapToPhysicalKeyBindings({
-          keyCap,
-          keyMapByEvent,
-          bindingLabels,
-        });
-
-        return {
-          ...virtualKey,
-          keyCapLabel: physicalKey.keyCap.keyCapLabel,
-          bindings,
-        };
-      }),
-    }))
-    .filter((key => key !== undefined) as <T>(key: T | undefined) => key is T);
-
-  return {
-    geometryName: keyboard.geometryName,
-    keyMapName: keyMapByEvent.keyMapName,
-    layoutName: keyboard.layoutName,
-    rows,
-  };
 }

@@ -1,4 +1,3 @@
-import { observable, ObservableMap } from 'mobx';
 import { DeepMap, Label, ReadonlyDeepMap } from './types';
 
 /**
@@ -52,13 +51,13 @@ export type BindingByEvent = string | KeyMapByEvent;
 /**
  * A way for bindings to be displayed via labels instead of the binding name
  */
-export type BindingLabels = ObservableMap<string, Label>;
+export type BindingLabels = Map<string, Label>;
 
 export type KeySequence = ReadonlyArray<ModdedKeyEvent>;
 
 export function makeKeyMapByEvent(keyMap: KeyMap): KeyMapByEvent {
   const { keyMapName, bindings: fullBindings } = keyMap;
-  const fullBindingsByEvent = observable.map<
+  const fullBindingsByEvent = new Map<
     KeyEvent,
     DeepMap<Modifiers, BindingByEvent>
   >([]);

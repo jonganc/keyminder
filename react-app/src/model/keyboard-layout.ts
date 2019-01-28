@@ -61,7 +61,7 @@ interface GeometryForRendering {
   readonly rows: ReadonlyArray<KeyRowForRendering>;
 }
 
-interface PhysicalKey extends VirtualKeyForRendering {
+export interface PhysicalKey extends VirtualKeyForRendering {
   readonly keyCap: KeyCap;
 }
 
