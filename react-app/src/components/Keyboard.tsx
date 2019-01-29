@@ -73,7 +73,6 @@ const KeyboardPhysicalKeyUnstyled: React.SFC<
     >
       <div
         className={classnames('keyboard-key', classes.defaultKey, classes.key)}
-        key={physicalKey.keyCode}
       >
         <Label
           className={classnames('keyboard-key-cap-label', classes.keyCapLabel)}
@@ -125,6 +124,7 @@ const KeyboardRowUnstyled: React.SFC<
           physicalKey={physicalKey}
           keyMapByEvent={keyMapByEvent}
           bindingLabels={bindingLabels}
+          key={physicalKey.keyCode}
         />
       ))}
     </div>
