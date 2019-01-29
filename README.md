@@ -1,6 +1,7 @@
 # Warranty/Licensing
 
 Keyminder: Tools to visualize keybindings and aid in creating keybindings
+
 Copyright (C) 2018 Jonathan Ganc
 
 This program is free software: you can redistribute it and/or modify
